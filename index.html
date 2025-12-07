@@ -23,7 +23,14 @@
     .brand{display:inline-block; padding:.18em .55em; border:1px solid rgba(108,240,255,.5); border-radius:12px;
       box-shadow:0 0 0 2px rgba(108,240,255,.15) inset, 0 0 24px rgba(108,240,255,.25);
       background:linear-gradient(180deg, rgba(108,240,255,.2), rgba(108,240,255,.05)); backdrop-filter:blur(2px)}
-    .subtitle{max-width:46ch; margin:10px auto 22px; color:var(--muted); font-size:clamp(14px,2.8vw,18px); line-height:1.45}
+    .subtitle{
+      max-width:46ch;
+      margin:10px auto 22px;
+      color:var(--muted);
+      /* 👇 made this bigger */
+      font-size:clamp(18px,3.2vw,24px);
+      line-height:1.45;
+    }
     .panel{border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; background:rgba(255,255,255,.03); box-shadow:0 12px 40px rgba(0,0,0,.35)}
     .video{width:100%; aspect-ratio:16/9; border-radius:12px; background:#000; display:grid; place-items:center; overflow:hidden}
     .muted{opacity:.7}
@@ -46,7 +53,8 @@
     <div class="panel" id="panel">
       <div class="video" id="videoShell">
         <div id="locked">
-          <p class="muted">Private sizzle locked.<br/>Enter access code to view.</p>
+          <!-- 👇 new copy, no more "sizzle" -->
+          <p class="muted">This file is sealed under SCI protocol.<br/>Enter clearance code to proceed.</p>
           <div class="gate">
             <input id="code" placeholder="Access code" aria-label="Access code" autocomplete="one-time-code" />
             <a href="#" class="btn" onclick="unlock(event)">Unlock</a>
@@ -99,4 +107,5 @@
   </script>
 </body>
 </html>
+
 
