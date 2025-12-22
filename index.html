@@ -1,299 +1,428 @@
- 
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PU5C1VER5E</title>
+  <title>PU5C1VER5E — Classified</title>
 
   <style>
     :root{
-      --bg:#060a06;
-      --fg:#c8ffd8;
-      --accent:#6bff8a;
-      --muted:#7fbf8f;
-      --red:#ff5f5f;
-      --green:#6bff8a;
+      --bg:#020402;
+      --phosphor:#7CFF9A;
+      --phosphor-dim: rgba(124,255,154,.72);
+      --phosphor-faint: rgba(124,255,154,.35);
+      --line: rgba(124,255,154,.18);
+      --panel: rgba(2, 12, 6, .55);
+      --error:#ff6670;
     }
 
+    *{box-sizing:border-box}
     html,body{height:100%}
 
     body{
       margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
-      color:var(--fg);
-      background:radial-gradient(100% 140% at 50% 0%, #0b120b 0%, #050805 60%, #030503 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      background: radial-gradient(1200px 700px at 50% 25%, #061a0c 0%, var(--bg) 55%, #000 100%);
+      color: var(--phosphor);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      letter-spacing:.5px;
       overflow-x:hidden;
     }
 
-    /* CRT overlays */
-    .crt:before{
+    /* CRT scanlines + vignette */
+    .crt::before{
       content:"";
-      position:fixed;
-      inset:0;
+      position:fixed; inset:0;
       pointer-events:none;
-      background:repeating-linear-gradient(
-        0deg,
-        rgba(107,255,138,.08) 0px,
-        rgba(107,255,138,.03) 1px,
-        transparent 2px
-      );
-      mix-blend-mode:overlay;
-      opacity:.18;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.03) 0px,
+          rgba(255,255,255,0.01) 1px,
+          rgba(0,0,0,0.06) 2px,
+          rgba(0,0,0,0.02) 4px
+        );
+      mix-blend-mode: overlay;
+      opacity:.35;
+      z-index:5;
     }
-
-    .crt:after{
+    .crt::after{
       content:"";
-      position:fixed;
-      inset:0;
+      position:fixed; inset:-2px;
       pointer-events:none;
-      background:radial-gradient(60% 40% at 50% 120%, rgba(107,255,138,.14), transparent 60%);
+      background: radial-gradient(60% 45% at 50% 35%, rgba(0,0,0,0) 0%, rgba(0,0,0,.55) 70%, rgba(0,0,0,.92) 100%);
+      opacity:.9;
+      z-index:6;
     }
 
-    .wrap{max-width:960px; width:100%; padding:32px 20px; text-align:center}
-
-    h1{
-      font-weight:800; letter-spacing:.06em; text-transform:uppercase;
-      font-size:clamp(28px,6vw,64px); margin:.1em 0 .2em;
-      text-shadow:0 0 18px rgba(107,255,138,.18);
-    }
-
-    .brand{
-      display:inline-block; padding:.18em .55em;
-      border:1px solid rgba(107,255,138,.55); border-radius:12px;
-      box-shadow:0 0 0 2px rgba(107,255,138,.18) inset, 0 0 20px rgba(107,255,138,.35);
-      background:linear-gradient(180deg, rgba(107,255,138,.18), rgba(107,255,138,.05));
-      backdrop-filter:blur(2px);
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      letter-spacing:.12em;
-    }
-
-    .subtitle{
-      max-width:46ch; margin:10px auto 22px; color:var(--muted);
-      font-size:clamp(18px,3.2vw,24px); line-height:1.45;
-      text-shadow:0 0 14px rgba(107,255,138,.10);
+    .wrap{
+      position:relative;
+      min-height:100%;
+      display:flex;
+      align-items:flex-start;
+      justify-content:center;
+      padding:32px 18px 60px;
+      z-index:1;
     }
 
     .panel{
-      border:1px solid rgba(200,255,216,.10);
-      border-radius:16px; padding:16px;
-      background:rgba(10,16,10,.35);
-      box-shadow:0 12px 40px rgba(0,0,0,.45);
-      transition:transform .15s ease;
+      width:min(980px, 94vw);
+      background: linear-gradient(180deg, var(--panel) 0%, rgba(0,0,0,.45) 100%);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:26px 22px;
+      box-shadow:
+        0 0 0 1px rgba(124,255,154,.08) inset,
+        0 0 45px rgba(124,255,154,.08);
+      position:relative;
     }
 
-    .video{
-      width:100%;
-      aspect-ratio:16/9;
-      border-radius:12px;
-      background:#000;
-      display:grid;
-      place-items:center;
+    .topline{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background: rgba(0,0,0,.35);
+      box-shadow: 0 0 18px rgba(124,255,154,.12);
+      text-transform:uppercase;
+      font-weight:700;
+      letter-spacing:2px;
+      font-size:12px;
+    }
+
+    h1{
+      margin:10px 0 6px;
+      text-align:center;
+      font-size: clamp(36px, 5vw, 64px);
+      letter-spacing: 6px;
+      text-transform:uppercase;
+      text-shadow:
+        0 0 10px rgba(124,255,154,.22),
+        0 0 22px rgba(124,255,154,.14);
+    }
+
+    .tagline{
+      text-align:center;
+      margin:0 0 18px;
+      color: var(--phosphor-dim);
+      font-size: clamp(13px, 1.7vw, 16px);
+      line-height:1.35;
+    }
+
+    .logoBox{
+      margin: 14px auto 18px;
+      width:min(720px, 92%);
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(0,0,0,.55);
+      padding:18px 16px;
+      box-shadow: 0 0 22px rgba(124,255,154,.10);
+      position:relative;
       overflow:hidden;
-      box-shadow:inset 0 0 0 1px rgba(107,255,138,.12);
     }
 
-    .muted{opacity:.85}
-
-    .meta{font-size:12px; color:rgba(200,255,216,.70); margin-top:8px}
-    .meta a{
-      color:var(--accent); text-decoration:none;
-      border-bottom:1px solid rgba(107,255,138,.35);
+    .logo{
+      display:block;
+      width: min(420px, 88%);
+      height:auto;
+      margin: 0 auto;
+      image-rendering: pixelated;
+      filter:
+        grayscale(1)
+        brightness(1.2)
+        contrast(1.2)
+        drop-shadow(0 0 10px rgba(124,255,154,.25));
+      opacity:.95;
+      mix-blend-mode: screen;
     }
-    .meta a:hover{border-bottom-color:rgba(107,255,138,.75)}
+
+    .hint{
+      font-size:12px;
+      color: var(--phosphor-faint);
+      margin-top:10px;
+      text-align:center;
+      letter-spacing:1px;
+    }
 
     .gate{
-      margin:22px auto 10px;
-      display:flex;
-      gap:8px;
-      justify-content:center;
-      flex-wrap:wrap;
+      margin: 14px auto 4px;
+      width:min(620px, 92%);
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:10px;
+      align-items:center;
     }
 
-    .gate input{
-      background:#070d08;
-      border:1px solid rgba(107,255,138,.35);
-      color:var(--fg);
-      border-radius:10px;
-      padding:10px 12px;
-      min-width:180px;
-      caret-color:var(--accent);
+    .input{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.55);
+      color: var(--phosphor);
       outline:none;
-      transition:box-shadow .15s ease, border-color .15s ease;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      letter-spacing:.18em;
+      font-size:14px;
+      letter-spacing:1.5px;
       text-transform:uppercase;
+      box-shadow: 0 0 0 1px rgba(124,255,154,.07) inset;
     }
-    .gate input::placeholder{
-      letter-spacing:.12em;
-      text-transform:none;
-      color:rgba(127,191,143,.85);
-    }
-    .gate input:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 1px rgba(107,255,138,.7), 0 0 14px rgba(107,255,138,.55);
+    .input:focus{
+      border-color: rgba(124,255,154,.45);
+      box-shadow:
+        0 0 0 1px rgba(124,255,154,.18) inset,
+        0 0 18px rgba(124,255,154,.12);
     }
 
     .btn{
-      display:inline-block;
-      margin:18px 8px 0;
-      padding:12px 16px;
-      border-radius:999px;
-      color:#031108;
-      background:var(--accent);
-      font-weight:700;
-      letter-spacing:.02em;
-      text-decoration:none;
-      border:none;
+      padding:12px 14px;
+      border-radius:12px;
+      border:1px solid rgba(124,255,154,.35);
+      background: rgba(0,0,0,.35);
+      color: var(--phosphor);
       cursor:pointer;
-      box-shadow:0 0 18px rgba(107,255,138,.22);
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      box-shadow: 0 0 16px rgba(124,255,154,.08);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{ border-color: rgba(124,255,154,.65); }
+    .btn:active{ transform: translateY(1px); }
+
+    .row2{
+      width:min(620px, 92%);
+      margin: 10px auto 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      color: var(--phosphor-faint);
+      font-size:12px;
     }
 
-    .stamp{
-      margin-top:14px;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      letter-spacing:.12em;
-      color:rgba(107,255,138,.85);
-      opacity:.9;
-      font-size:11px;
-      text-shadow:0 0 12px rgba(107,255,138,.18);
+    .msg{
+      width:min(620px, 92%);
+      margin: 10px auto 0;
+      min-height:18px;
+      text-align:center;
+      font-size:12px;
+      color: var(--phosphor-dim);
+    }
+    .msg.error{ color: var(--error); }
+
+    .footer{
+      margin-top: 18px;
+      padding-top: 14px;
+      border-top:1px solid rgba(124,255,154,.12);
+      text-align:center;
+      color: var(--phosphor-faint);
+      font-size:12px;
     }
 
-    footer{margin-top:22px; font-size:12px; color:rgba(200,255,216,.60)}
-    .err{color:var(--red); font-size:12px; margin-top:6px; min-height:16px}
-    .log{
-      margin-top:4px;
-      min-height:16px;
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
-      font-size:11px;
-      color:rgba(107,255,138,.90);
-      opacity:.95;
-      text-shadow:0 0 12px rgba(107,255,138,.18);
+    a{ color: var(--phosphor); text-decoration:none; border-bottom:1px dashed rgba(124,255,154,.35); }
+    a:hover{ border-bottom-color: rgba(124,255,154,.75); }
+
+    /* subtle flicker */
+    @keyframes flicker { 0%,100%{opacity:1} 50%{opacity:.965} 70%{opacity:.94} }
+    .flicker{ animation:flicker 4.5s infinite; }
+
+    /* Terminal video “screen” box */
+    .terminalWrap{
+      display:none;
+      margin: 18px auto 6px;
+      width:min(860px, 96%);
+      border:1px solid rgba(124,255,154,.14);
+      border-radius:18px;
+      background: rgba(0,0,0,.35);
+      padding:18px 16px 14px;
+      box-shadow: 0 0 22px rgba(124,255,154,.08);
     }
 
-    /* shake on access denied */
-    @keyframes shake {
-      0%{transform:translateX(0)}
-      20%{transform:translateX(-4px)}
-      40%{transform:translateX(4px)}
-      60%{transform:translateX(-3px)}
-      80%{transform:translateX(3px)}
-      100%{transform:translateX(0)}
+    .terminalFrame{
+      width:100%;
+      aspect-ratio: 16 / 9;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(124,255,154,.14);
+      background: #000;
+      position:relative;
     }
-    .shake{animation:shake .22s ease-out}
 
-    /* flash on unlock */
-    .flash{
-      position:fixed;
-      inset:0;
+    /* a little “glass” / CRT bloom over the video */
+    .terminalFrame::after{
+      content:"";
+      position:absolute; inset:0;
       pointer-events:none;
-      background:radial-gradient(circle at 50% 50%, rgba(107,255,138,.35), transparent 60%);
-      mix-blend-mode:screen;
-      opacity:0;
-      transition:opacity .12s ease-out;
+      background:
+        radial-gradient(75% 55% at 50% 35%, rgba(124,255,154,.06) 0%, rgba(0,0,0,0) 60%),
+        linear-gradient(to bottom, rgba(255,255,255,.05), rgba(0,0,0,0) 35%, rgba(0,0,0,.08));
+      mix-blend-mode: screen;
+      opacity:.55;
+    }
+
+    .terminalFrame iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+
+    .terminalMeta{
+      margin-top:10px;
+      text-align:center;
+      color: var(--phosphor-faint);
+      font-size:12px;
+      letter-spacing:.8px;
+    }
+
+    /* Hide the login area once authed (optional but matches your screenshot flow) */
+    .hidden{ display:none !important; }
+
+    @media (max-width:520px){
+      .gate{ grid-template-columns: 1fr; }
+      .btn{ width:100%; }
+      h1{ letter-spacing:4px; }
     }
   </style>
 </head>
 
 <body class="crt">
-  <div class="wrap">
-    <div class="brand">PU5C1VER5E</div>
-    <h1>CLASSIFIED</h1>
-    <p class="subtitle">A Psychospiritual Journey Through the Puscifer Mythos</p>
+  <main class="wrap">
+    <section class="panel flicker" role="region" aria-label="PU5C1VER5E Access Terminal">
 
-    <div class="panel" id="panel">
-      <div class="video" id="videoShell">
-        <div id="locked">
-          <p class="muted">
-            This file is sealed under SCI protocol.<br/>
-            Enter clearance code to proceed.
-          </p>
+      <div class="topline">
+        <div class="badge">PU5C1VER5E</div>
+      </div>
 
-          <div class="gate">
-            <input id="code" placeholder="Access code" aria-label="Access code" autocomplete="one-time-code" />
-            <button class="btn" id="unlockBtn">Unlock</button>
-          </div>
+      <h1>CLASSIFIED</h1>
+      <p class="tagline">A Psychospiritual Journey Through the Puscifer Mythos</p>
 
-          <div id="err" class="err"></div>
-          <div id="log" class="log">&gt;&gt; ENTER ACCESS CODE TO INITIATE UPLINK…</div>
-          <div class="stamp">CLEARANCE LEVEL: SCI &nbsp;•&nbsp; FILE: T is for TAROT_PROJECT</div>
+      <!-- LOGIN AREA -->
+      <div id="loginArea">
+        <div class="logoBox">
+          <img class="logo" src="logo.png" alt="descend9down logo" />
+          <div class="hint">SYSTEM: ONLINE • CLEARANCE: REQUIRED</div>
+        </div>
+
+        <form id="gateForm" class="gate" autocomplete="off">
+          <input id="code" class="input" inputmode="text" placeholder="ENTER ACCESS CODE" aria-label="Access code" />
+          <button class="btn" type="submit">LOGIN</button>
+        </form>
+
+        <div class="row2">
+          <div>Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a></div>
+          <button id="clearBtn" class="btn" type="button" title="Clears saved access on this browser">CLEAR ACCESS</button>
+        </div>
+
+        <div id="msg" class="msg"></div>
+      </div>
+
+      <!-- TERMINAL VIDEO AREA (revealed after login) -->
+      <div id="terminalWrap" class="terminalWrap">
+        <div class="terminalFrame" aria-label="Terminal video">
+          <!-- Replace the src below with your Vimeo embed URL -->
+          <iframe
+  src="https://player.vimeo.com/video/1128635365?autoplay=1&autopause=0"
+  allow="autoplay; fullscreen; picture-in-picture"
+  allowfullscreen
+  title="Blinky DOS">
+          </iframe>
+
+        </div>
+
+        <div class="terminalMeta">
+          Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a>
         </div>
       </div>
 
-      <div class="meta">
-        Don’t have the code? Request access:
-        <a href="mailto:evans.jimw@gmail.com">evans.jimw@gmail.com</a>
-      </div>
-    </div>
-
-    <footer>© J. Evans — Prototype materials for private review only.</footer>
-  </div>
-
-  <div class="flash" id="flash"></div>
+      <div class="footer">© descend9down — Prototype materials for private review only.</div>
+    </section>
+  </main>
 
   <script>
-    const PASS = "PROBE";
+    // ====== CONFIG ======
+    const ACCESS_CODE = "PROBE";
+    const STORAGE_KEY = "PU5C1VER5E_ACCESS_V1";
 
-    // Vimeo intro (plays after unlock)
-    const VIDEO_URL = "https://player.vimeo.com/video/1128635365?autoplay=1&muted=1&title=0&byline=0&portrait=0";
+    // ====== ELEMENTS ======
+    const form = document.getElementById("gateForm");
+    const input = document.getElementById("code");
+    const msg = document.getElementById("msg");
+    const clearBtn = document.getElementById("clearBtn");
 
-    const codeInput = document.getElementById('code');
-    const err = document.getElementById('err');
-    const log = document.getElementById('log');
-    const panel = document.getElementById('panel');
-    const flash = document.getElementById('flash');
-    const unlockBtn = document.getElementById('unlockBtn');
+    const loginArea = document.getElementById("loginArea");
+    const terminalWrap = document.getElementById("terminalWrap");
 
-    codeInput.focus();
+    function setMsg(text, kind){
+      msg.textContent = text || "";
+      msg.className = "msg" + (kind ? " " + kind : "");
+    }
 
-    // Enter key should unlock
-    codeInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') unlock();
-    });
+    function hasAccess(){
+      return localStorage.getItem(STORAGE_KEY) === "1";
+    }
 
-    // Button unlock
-    unlockBtn.addEventListener('click', (e) => {
+    function showTerminal(){
+      // hide login bits (keeps the page clean like your screenshot)
+      loginArea.classList.add("hidden");
+
+      // show vimeo terminal
+      terminalWrap.style.display = "block";
+
+      // scroll it into view nicely
+      setTimeout(() => {
+        terminalWrap.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 50);
+    }
+
+    function grantAccess(){
+      localStorage.setItem(STORAGE_KEY, "1");
+      showTerminal();
+    }
+
+    // On load: restore session if already authed
+    if (hasAccess()){
+      showTerminal();
+    } else {
+      // focus the input for quick typing
+      input.focus();
+    }
+
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
-      unlock();
+      const val = (input.value || "").trim().toUpperCase();
+
+      if (!val){
+        setMsg(">> ENTER CODE.", "error");
+        return;
+      }
+
+      if (val === ACCESS_CODE){
+        grantAccess();
+      } else {
+        setMsg(">> ACCESS DENIED.", "error");
+        input.select();
+      }
     });
 
-    function unlock(){
-      const v = codeInput.value.trim();
-
-      if (v.toUpperCase() === PASS){
-        log.textContent = ">> ACCESS GRANTED. ESTABLISHING UPLINK…";
-        err.textContent = "";
-
-        flash.style.opacity = "1";
-        setTimeout(() => flash.style.opacity = "0", 120);
-
-        injectVideo();
-      } else {
-        err.textContent = "ACCESS DENIED.";
-        log.textContent = ">> INVALID CODE. CHECK CLEARANCE AND RETRY.";
-        panel.classList.add('shake');
-        setTimeout(() => {
-          panel.classList.remove('shake');
-          err.textContent = "";
-        }, 550);
-      }
-    }
-
-    function injectVideo(){
-      const shell = document.getElementById('videoShell');
-      shell.innerHTML = `
-        <iframe
-          src="${VIDEO_URL}"
-          title="PU5C1VER5E — Intro"
-          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-          allowfullscreen
-          style="width:100%;height:100%;border:0;border-radius:12px;">
-        </iframe>
-      `;
-    }
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      // simple hard refresh back to login view
+      window.location.reload();
+    });
   </script>
 </body>
 </html>
+ 
+
