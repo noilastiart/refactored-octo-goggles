@@ -3,498 +3,202 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E — Password Restricted</title>
-
+  <title>PU5C1VER5E</title>
   <style>
     :root{
-      --bg:#000000;
-      --phosphor:#39ff14;
-      --phosphor-dim: rgba(57,255,20,.65);
-      --phosphor-faint: rgba(57,255,20,.25);
-      --panel: rgba(0,0,0,.55);
-      --line: rgba(57,255,20,.22);
-      --error: #ff3b3b;
+      --bg:#000;
+      --glow: rgba(57,255,20,.18);
+
+      /* Screen placement INSIDE the monitor frame.
+         You will tweak these 4 numbers once and you’re done. */
+      --screen-left: 14.8%;
+      --screen-top: 15.8%;
+      --screen-w: 70.4%;
+      --screen-h: 62.8%;
+
+      /* Password box placement INSIDE the boot-splash image.
+         You’ll tweak these too, but it’s fast (a few nudges). */
+      --pw-left: 56%;
+      --pw-top: 67%;
+      --pw-w: 26%;
+      --pw-h: 9%;
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
-      margin:0;
-      background: radial-gradient(1200px 700px at 50% 30%, rgba(57,255,20,.10), transparent 60%),
-                  radial-gradient(900px 500px at 50% 70%, rgba(57,255,20,.06), transparent 55%),
-                  var(--bg);
-      color:var(--phosphor);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      margin:0; min-height:100vh;
+      display:grid; place-items:center;
+      background: radial-gradient(1000px 600px at 50% 35%, var(--glow), transparent 60%), var(--bg);
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      color:#39ff14;
       padding:24px;
-      overflow:hidden;
     }
 
-    /* Subtle CRT overlay */
-    .crt::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        linear-gradient(to bottom,
-          rgba(255,255,255,.03),
-          rgba(0,0,0,.03)
-        );
-      mix-blend-mode: overlay;
-      opacity:.35;
-    }
-    .crt::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(0,0,0,.0) 0px,
-          rgba(0,0,0,.0) 2px,
-          rgba(0,0,0,.25) 3px
-        );
-      opacity:.35;
-    }
-
-    .wrap{
+    .stage{
       width:min(1100px, 96vw);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:16px;
-    }
-
-    .topline{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      text-align:center;
-      gap:10px;
-      margin-bottom:8px;
-    }
-
-    .pill{
-      border:1px solid var(--line);
-      padding:6px 12px;
-      border-radius:999px;
-      letter-spacing:.18em;
-      font-weight:700;
-      font-size:12px;
-      color:var(--phosphor);
-      text-shadow:0 0 10px rgba(57,255,20,.35);
-      background: rgba(0,0,0,.55);
-      box-shadow:0 0 35px rgba(57,255,20,.10);
-    }
-
-    .title{
-      font-size: clamp(44px, 6vw, 76px);
-      letter-spacing:.18em;
-      font-weight:900;
-      line-height:1;
-      text-transform:uppercase;
-      text-shadow:
-        0 0 14px rgba(57,255,20,.25),
-        0 0 2px rgba(57,255,20,.35);
-      margin:0;
-    }
-
-    .subtitle{
-      margin:0;
-      color:var(--phosphor-dim);
-      font-size: clamp(14px, 1.8vw, 18px);
-      letter-spacing:.06em;
-      text-shadow:0 0 10px rgba(57,255,20,.18);
-    }
-
-    /* Monitor stage */
-    .monitor-stage{
-      width:100%;
-      max-width: 980px;
       position:relative;
-      display:flex;
-      justify-content:center;
-      align-items:center;
+      border-radius:18px;
       padding:18px;
       border:1px solid rgba(57,255,20,.12);
-      border-radius:18px;
       background: rgba(0,0,0,.35);
-      box-shadow:
-        0 0 80px rgba(57,255,20,.12),
-        inset 0 0 0 1px rgba(255,255,255,.03);
+      box-shadow: 0 0 80px rgba(57,255,20,.10);
     }
 
-    /* This is the actual monitor image (your frame C) */
-    .monitor-frame{
+    .monitor{
       width:100%;
       height:auto;
       display:block;
-      filter: drop-shadow(0 0 45px rgba(57,255,20,.10));
       user-select:none;
-      -webkit-user-drag:none;
       pointer-events:none;
+      filter: drop-shadow(0 0 45px rgba(57,255,20,.10));
     }
 
-    /* Screen area: positioned over the monitor opening */
+    /* The “real screen” region, positioned over the monitor opening */
     .screen{
       position:absolute;
-      /* TUNE THESE FOUR VALUES ONCE YOU DROP IN YOUR monitor-frame.png */
-      left: 14.8%;
-      top: 15.8%;
-      width: 70.4%;
-      height: 62.8%;
-
-      border-radius:14px;
+      left: var(--screen-left);
+      top: var(--screen-top);
+      width: var(--screen-w);
+      height: var(--screen-h);
       overflow:hidden;
-      background: radial-gradient(900px 500px at 50% 40%, rgba(57,255,20,.10), transparent 55%),
-                  rgba(0,0,0,.75);
-      box-shadow:
-        inset 0 0 0 1px rgba(57,255,20,.12),
-        inset 0 0 40px rgba(0,0,0,.75);
+      border-radius:14px;
+      background:#000;
+      box-shadow: inset 0 0 0 1px rgba(57,255,20,.10);
     }
 
-    /* Login + Video share the same screen space */
-    .screen-inner{
+    /* Boot splash (your exact image) */
+    .boot{
       position:absolute;
       inset:0;
+      background: #000;
+      display:block;
+    }
+    .boot img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* Invisible-but-real password input placed over the dotted box */
+    .pw-hitbox{
+      position:absolute;
+      left: var(--pw-left);
+      top: var(--pw-top);
+      width: var(--pw-w);
+      height: var(--pw-h);
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:28px;
+      pointer-events:auto;
     }
-
-    .panel{
-      width:min(760px, 100%);
-      border:1px solid rgba(57,255,20,.18);
-      background: rgba(0,0,0,.55);
-      border-radius:16px;
-      padding:22px 22px 18px;
-      box-shadow:
-        0 0 40px rgba(57,255,20,.10),
-        inset 0 0 0 1px rgba(255,255,255,.02);
-      position:relative;
-    }
-
-    .panel::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      background: radial-gradient(700px 300px at 50% 25%, rgba(57,255,20,.08), transparent 60%);
-      opacity:.75;
-    }
-
-    .panel-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:16px;
-      margin-bottom:14px;
-      position:relative;
-      z-index:1;
-    }
-
-    .logo{
-      width:92px;
-      height:auto;
-      opacity:.9;
-      /* Make your black/white logo go green-ish */
-      filter:
-        grayscale(1)
-        contrast(1.25)
-        brightness(1.05)
-        drop-shadow(0 0 12px rgba(57,255,20,.25));
-      mix-blend-mode: screen;
-    }
-
-    .panel-head{
-      flex:1;
-      text-align:left;
-    }
-
-    .panel-head .brand{
-      font-weight:900;
-      letter-spacing:.22em;
-      font-size:18px;
-      margin:0 0 6px 0;
-      text-transform:uppercase;
-      text-shadow:0 0 10px rgba(57,255,20,.25);
-    }
-
-    .panel-head .tag{
-      margin:0;
-      color:var(--phosphor-dim);
-      font-size:13px;
-      letter-spacing:.08em;
-    }
-
-    .divider{
-      height:1px;
-      background: rgba(57,255,20,.12);
-      margin:12px 0 16px;
-      position:relative;
-      z-index:1;
-    }
-
-    .dos{
-      position:relative;
-      z-index:1;
-      font-size:14px;
-      line-height:1.55;
-      color:var(--phosphor);
-      text-shadow:0 0 10px rgba(57,255,20,.12);
-      margin:0 0 14px 0;
-      white-space:pre-wrap;
-    }
-
-    .form{
-      position:relative;
-      z-index:1;
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .label{
-      color:var(--phosphor-dim);
-      letter-spacing:.08em;
-      font-size:12px;
-    }
-
-    input[type="password"]{
-      flex:1;
-      min-width:240px;
-      padding:12px 12px;
-      border-radius:10px;
-      border:1px solid rgba(57,255,20,.22);
-      background: rgba(0,0,0,.7);
-      color: var(--phosphor);
-      outline:none;
-      font-size:14px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
-    }
-    input[type="password"]:focus{
-      border-color: rgba(57,255,20,.55);
-      box-shadow: 0 0 0 3px rgba(57,255,20,.12);
-    }
-
-    button{
-      padding:12px 14px;
-      border-radius:10px;
-      border:1px solid rgba(57,255,20,.28);
-      background: rgba(0,0,0,.65);
-      color: var(--phosphor);
-      font-weight:800;
-      letter-spacing:.10em;
-      cursor:pointer;
-      text-transform:uppercase;
-      transition: transform .08s ease, border-color .15s ease, background .15s ease;
-    }
-    button:hover{
-      border-color: rgba(57,255,20,.60);
-      background: rgba(0,0,0,.8);
-      transform: translateY(-1px);
-    }
-    button:active{ transform: translateY(0px); }
-
-    .hint{
-      margin-top:10px;
-      color: var(--phosphor-faint);
-      font-size:12px;
-      letter-spacing:.04em;
-      position:relative;
-      z-index:1;
-    }
-
-    .error{
-      color: var(--error);
-      font-weight:800;
-      letter-spacing:.06em;
-      margin-top:10px;
-      display:none;
-      position:relative;
-      z-index:1;
-    }
-
-    /* Video wrapper (inside screen) */
-    .video-wrap{
-      position:absolute;
-      inset:0;
-      display:none;
-      background: #000;
-    }
-    .video-wrap iframe{
+    .pw-hitbox input{
       width:100%;
       height:100%;
       border:0;
-      display:block;
+      outline:none;
+      background: rgba(0,0,0,0); /* invisible */
+      color: transparent;         /* hides typed text */
+      caret-color: #39ff14;       /* but keeps a green cursor */
+      font-size: 24px;
+      letter-spacing: .25em;
+      text-align:left;
     }
 
-    /* Fade transitions */
-    .fade-out{
-      animation: fadeOut .35s ease forwards;
+    /* Optional: show a subtle focus glow so YOU can debug placement */
+    .pw-hitbox input:focus{
+      box-shadow: 0 0 0 2px rgba(57,255,20,.25);
+      border-radius:10px;
     }
-    .fade-in{
-      animation: fadeIn .45s ease forwards;
+
+    /* Video layer (revealed after correct password) */
+    .video{
+      position:absolute;
+      inset:0;
+      display:none;
+      background:#000;
     }
-    @keyframes fadeOut{
-      to{ opacity:0; transform: scale(.995); }
+    .video iframe{
+      width:100%; height:100%;
+      border:0; display:block;
     }
-    @keyframes fadeIn{
-      from{ opacity:0; transform: scale(1.005); }
-      to{ opacity:1; transform: scale(1); }
-    }
+
+    .fadeOut{ animation: fadeOut .35s ease forwards; }
+    .fadeIn{ animation: fadeIn .45s ease forwards; }
+    @keyframes fadeOut{ to{ opacity:0; } }
+    @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
 
     .below{
-      width:100%;
-      max-width:980px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:8px;
-      color: var(--phosphor-dim);
-      font-size:12px;
+      margin-top:14px;
       text-align:center;
+      font-size:12px;
+      color: rgba(57,255,20,.65);
       letter-spacing:.04em;
     }
-
-    .below a{
-      color: var(--phosphor);
-      text-decoration:none;
-      border-bottom:1px dashed rgba(57,255,20,.35);
-    }
-    .below a:hover{
-      border-bottom-color: rgba(57,255,20,.8);
-    }
-
-    /* Mobile tweaks */
-    @media (max-width:520px){
-      .panel{ padding:18px 16px 14px; }
-      .logo{ width:70px; }
-      .panel-head .brand{ font-size:16px; }
-      .screen-inner{ padding:18px; }
-    }
+    .below a{ color:#39ff14; text-decoration:none; border-bottom:1px dashed rgba(57,255,20,.35); }
+    .below a:hover{ border-bottom-color: rgba(57,255,20,.8); }
   </style>
 </head>
+<body>
+  <div class="stage">
 
-<body class="crt">
-  <div class="wrap">
-
-    <div class="topline">
-      <div class="pill">PU5C1VER5E</div>
-      <h1 class="title">PASSWORD RESTRICTED</h1>
-      <p class="subtitle">A Psychospiritual Journey Through the Puscifer Mythos</p>
-    </div>
-
-    <div class="monitor-stage" aria-label="Monitor container">
-      <!-- Screen content lives “behind” the monitor frame -->
-      <div class="screen" role="region" aria-label="Monitor screen">
-        <div class="screen-inner" id="loginScreen">
-          <div class="panel">
-            <div class="panel-row">
-              <img class="logo" src="logo.png" alt="Descend 9 Down logo" />
-              <div class="panel-head">
-                <p class="brand">PU5C1VER5E</p>
-                <p class="tag">ACCESS CONTROL / AUTH REQUIRED</p>
-              </div>
-            </div>
-
-            <div class="divider"></div>
-
-            <p class="dos" id="dosText">
-C:\TERMINAL\BOOT&gt; INIT
-[OK] PHOSPHOR DISPLAY
-[OK] ORACLE CHANNEL LINK
-[LOCKED] CLEARANCE REQUIRED
-            </p>
-
-            <form class="form" id="loginForm" autocomplete="off">
-              <span class="label">ENTER ACCESS CODE:</span>
-              <input id="codeInput" type="password" inputmode="text" spellcheck="false" />
-              <button type="submit">LOGIN</button>
-            </form>
-
-            <div class="error" id="errorMsg">ACCESS DENIED</div>
-            <div class="hint">Hint: the code is the same as before.</div>
-          </div>
-        </div>
-
-        <!-- Video view (revealed after correct password) -->
-        <div class="video-wrap" id="videoWrap" aria-label="Vimeo video">
-          <iframe
-            src="https://player.vimeo.com/video/1128635365?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            title="Blinky DOS">
-          </iframe>
+    <div class="screen" aria-label="Screen area">
+      <div class="boot" id="bootLayer">
+        <img src="boot-splash.png" alt="PU5C1VER5E boot splash" />
+        <div class="pw-hitbox">
+          <input id="pw" type="password" autocomplete="off" spellcheck="false" />
         </div>
       </div>
 
-      <!-- Your monitor frame image sits on top -->
-      <img class="monitor-frame" src="monitor-frame.png" alt="Monitor frame" />
+      <div class="video" id="videoLayer">
+        <iframe
+          src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          title="Blinky DOS"></iframe>
+      </div>
     </div>
+
+    <img class="monitor" src="monitor-frame.png" alt="Monitor frame" />
 
     <div class="below">
-      <div>Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a></div>
-      <div>© descend9down — Prototype materials for private review only.</div>
+      Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a><br/>
+      © descend9down — Prototype materials for private review only.
     </div>
-
   </div>
 
   <script>
     (function(){
       const PASSWORD = "probe";
+      const input = document.getElementById("pw");
+      const boot = document.getElementById("bootLayer");
+      const video = document.getElementById("videoLayer");
 
-      const form = document.getElementById("loginForm");
-      const input = document.getElementById("codeInput");
-      const loginScreen = document.getElementById("loginScreen");
-      const videoWrap = document.getElementById("videoWrap");
-      const errorMsg = document.getElementById("errorMsg");
-      const dosText = document.getElementById("dosText");
+      // Focus the hidden input on click anywhere in the screen
+      document.querySelector(".screen").addEventListener("pointerdown", () => input.focus());
 
-      function deny(){
-        errorMsg.style.display = "block";
-        dosText.textContent =
-`C:\\TERMINAL\\BOOT> AUTH
-[FAIL] INVALID CODE
-[LOCKED] ACCESS DENIED`;
-        input.value = "";
-        input.focus();
-        setTimeout(() => (errorMsg.style.display = "none"), 1200);
-      }
-
-      function grant(){
-        errorMsg.style.display = "none";
-        dosText.textContent =
-`C:\\TERMINAL\\BOOT> AUTH
-[OK] ACCESS GRANTED
-LOADING TRANSMISSION...`;
-
-        // Fade out login
-        loginScreen.classList.add("fade-out");
-
-        setTimeout(() => {
-          loginScreen.style.display = "none";
-          videoWrap.style.display = "block";
-          videoWrap.classList.add("fade-in");
-        }, 360);
-      }
-
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const val = (input.value || "").trim().toLowerCase();
-        if(val === PASSWORD) grant();
-        else deny();
+      input.addEventListener("keydown", (e) => {
+        if(e.key === "Enter"){
+          const val = (input.value || "").trim().toLowerCase();
+          if(val === PASSWORD){
+            boot.classList.add("fadeOut");
+            setTimeout(() => {
+              boot.style.display = "none";
+              video.style.display = "block";
+              video.classList.add("fadeIn");
+            }, 360);
+          } else {
+            // quick “denied” feedback: shake the caret by clearing + refocus
+            input.value = "";
+            input.blur();
+            setTimeout(() => input.focus(), 40);
+          }
+        }
       });
 
-      // Autofocus for convenience
       window.addEventListener("load", () => input.focus());
     })();
   </script>
 </body>
 </html>
+
