@@ -1,204 +1,363 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PU5C1VER5E — Password Restricted</title>
   <style>
     :root{
       --bg:#000;
-      --glow: rgba(57,255,20,.18);
-
-      /* Screen placement INSIDE the monitor frame.
-         You will tweak these 4 numbers once and you’re done. */
-      --screen-left: 14.8%;
-      --screen-top: 15.8%;
-      --screen-w: 70.4%;
-      --screen-h: 62.8%;
-
-      /* Password box placement INSIDE the boot-splash image.
-         You’ll tweak these too, but it’s fast (a few nudges). */
-      --pw-left: 56%;
-      --pw-top: 67%;
-      --pw-w: 26%;
-      --pw-h: 9%;
+      --green:#38ff6a;
+      --green-dim: rgba(56,255,106,.55);
+      --glow: 0 0 10px rgba(56,255,106,.35), 0 0 24px rgba(56,255,106,.20);
+      --radius: 18px;
     }
 
-    *{box-sizing:border-box}
+    html,body{height:100%;}
     body{
-      margin:0; min-height:100vh;
-      display:grid; place-items:center;
-      background: radial-gradient(1000px 600px at 50% 35%, var(--glow), transparent 60%), var(--bg);
-      font-family: ui-monospace, Menlo, Consolas, monospace;
-      color:#39ff14;
-      padding:24px;
+      margin:0;
+      background: radial-gradient(ellipse at center, rgba(56,255,106,.10) 0%, rgba(0,0,0,1) 60%);
+      color: var(--green);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 28px 16px;
+      overflow-x:hidden;
     }
 
-    .stage{
-      width:min(1100px, 96vw);
+    /* subtle vignette + screen noise */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 78%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 2px, transparent 4px);
+      mix-blend-mode: screen;
+      opacity:.12;
+      pointer-events:none;
+    }
+
+    .wrap{
+      width:min(980px, 100%);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:18px;
+      text-align:center;
+    }
+
+    /* monitor stage */
+    .monitor-stage{
+      width:min(860px, 100%);
       position:relative;
-      border-radius:18px;
-      padding:18px;
-      border:1px solid rgba(57,255,20,.12);
-      background: rgba(0,0,0,.35);
-      box-shadow: 0 0 80px rgba(57,255,20,.10);
+      filter: drop-shadow(0 0 28px rgba(56,255,106,.16));
     }
 
-    .monitor{
+    .monitor-frame{
       width:100%;
       height:auto;
       display:block;
       user-select:none;
+      -webkit-user-drag:none;
       pointer-events:none;
-      filter: drop-shadow(0 0 45px rgba(57,255,20,.10));
     }
 
-    /* The “real screen” region, positioned over the monitor opening */
+    /* Screen area inside the monitor — tune these if needed */
     .screen{
       position:absolute;
-      left: var(--screen-left);
-      top: var(--screen-top);
-      width: var(--screen-w);
-      height: var(--screen-h);
+      left: 13.5%;
+      top: 18.5%;
+      width: 73%;
+      height: 63%;
+      border-radius: 10px;
       overflow:hidden;
-      border-radius:14px;
       background:#000;
-      box-shadow: inset 0 0 0 1px rgba(57,255,20,.10);
-    }
-
-    /* Boot splash (your exact image) */
-    .boot{
-      position:absolute;
-      inset:0;
-      background: #000;
-      display:block;
-    }
-    .boot img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    /* Invisible-but-real password input placed over the dotted box */
-    .pw-hitbox{
-      position:absolute;
-      left: var(--pw-left);
-      top: var(--pw-top);
-      width: var(--pw-w);
-      height: var(--pw-h);
       display:flex;
       align-items:center;
       justify-content:center;
-      pointer-events:auto;
     }
-    .pw-hitbox input{
+
+    /* CRT effects */
+    .screen::before{
+      content:"";
+      position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse at center, rgba(56,255,106,.08) 0%, rgba(0,0,0,.65) 70%),
+        repeating-linear-gradient(0deg, rgba(0,0,0,.0) 0px, rgba(0,0,0,.0) 2px, rgba(0,0,0,.10) 3px, rgba(0,0,0,.10) 4px);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .screen::after{
+      content:"";
+      position:absolute; inset:-20%;
+      background: linear-gradient(90deg, rgba(255,0,0,.05), rgba(0,255,0,.03), rgba(0,180,255,.05));
+      mix-blend-mode: screen;
+      opacity:.08;
+      transform: rotate(0.5deg);
+      pointer-events:none;
+      animation: drift 10s linear infinite;
+    }
+    @keyframes drift{
+      0%{transform: translateX(-2%) rotate(.5deg);}
+      50%{transform: translateX(2%) rotate(.5deg);}
+      100%{transform: translateX(-2%) rotate(.5deg);}
+    }
+
+    .screen-content{
+      position:relative;
       width:100%;
       height:100%;
-      border:0;
-      outline:none;
-      background: rgba(0,0,0,0); /* invisible */
-      color: transparent;         /* hides typed text */
-      caret-color: #39ff14;       /* but keeps a green cursor */
-      font-size: 24px;
-      letter-spacing: .25em;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+    }
+
+    .boot{
+      width:min(640px, 100%);
+      height:auto;
+      image-rendering: pixelated;
+      filter: saturate(1.1) contrast(1.05) drop-shadow(0 0 10px rgba(56,255,106,.25));
+      opacity:.95;
+      transform: translateZ(0);
+      animation: bootFlicker 3.2s infinite;
+      user-select:none;
+      -webkit-user-drag:none;
+      pointer-events:none;
+    }
+    @keyframes bootFlicker{
+      0%, 100%{opacity:.94;}
+      9%{opacity:.86;}
+      10%{opacity:.98;}
+      52%{opacity:.90;}
+      53%{opacity:.98;}
+      71%{opacity:.92;}
+      72%{opacity:.99;}
+    }
+
+    .login{
+      width: 100%;
+      max-width: 620px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
       text-align:left;
     }
 
-    /* Optional: show a subtle focus glow so YOU can debug placement */
-    .pw-hitbox input:focus{
-      box-shadow: 0 0 0 2px rgba(57,255,20,.25);
-      border-radius:10px;
+    .line{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-start;
+      color: var(--green);
+      text-shadow: var(--glow);
+      font-size: 15px;
+      line-height: 1.25;
     }
 
-    /* Video layer (revealed after correct password) */
-    .video{
-      position:absolute;
-      inset:0;
+    .prompt{
+      color: var(--green-dim);
+    }
+
+    .inputRow{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 6px;
+    }
+
+    input[type="password"]{
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(56,255,106,.35);
+      color: var(--green);
+      padding: 10px 12px;
+      border-radius: 10px;
+      outline:none;
+      width: min(260px, 80vw);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 12px rgba(56,255,106,.10);
+      font-family: inherit;
+      font-size: 15px;
+    }
+    input[type="password"]::placeholder{color: rgba(56,255,106,.35);}
+
+    button{
+      background: rgba(56,255,106,.12);
+      border: 1px solid rgba(56,255,106,.35);
+      color: var(--green);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor:pointer;
+      font-family: inherit;
+      font-size: 14px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      box-shadow: 0 0 14px rgba(56,255,106,.10);
+    }
+    button:hover{background: rgba(56,255,106,.18);}
+    button:active{transform: translateY(1px);}
+
+    .status{
+      min-height: 18px;
+      color: rgba(56,255,106,.75);
+      font-size: 13px;
+    }
+
+    /* Vimeo */
+    .vimeoWrap{
+      width:100%;
+      height:100%;
       display:none;
-      background:#000;
+      position:relative;
     }
-    .video iframe{
-      width:100%; height:100%;
-      border:0; display:block;
+    .vimeoWrap iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+      border-radius: 10px;
     }
 
-    .fadeOut{ animation: fadeOut .35s ease forwards; }
-    .fadeIn{ animation: fadeIn .45s ease forwards; }
-    @keyframes fadeOut{ to{ opacity:0; } }
-    @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
-
+    /* page footer text */
     .below{
-      margin-top:14px;
-      text-align:center;
-      font-size:12px;
-      color: rgba(57,255,20,.65);
-      letter-spacing:.04em;
+      width:min(860px, 100%);
+      color: rgba(56,255,106,.65);
+      font-size: 13px;
+      text-shadow: 0 0 10px rgba(56,255,106,.18);
+      margin-top: -6px;
     }
-    .below a{ color:#39ff14; text-decoration:none; border-bottom:1px dashed rgba(57,255,20,.35); }
-    .below a:hover{ border-bottom-color: rgba(57,255,20,.8); }
+    .below a{
+      color: rgba(56,255,106,.90);
+      text-decoration:none;
+      border-bottom: 1px dotted rgba(56,255,106,.55);
+    }
+    .below a:hover{opacity:.9}
+
+    .fineprint{
+      color: rgba(56,255,106,.45);
+      font-size: 12px;
+      margin-top: 6px;
+    }
   </style>
 </head>
-<body>
-  <div class="stage">
 
-    <div class="screen" aria-label="Screen area">
-      <div class="boot" id="bootLayer">
-        <img src="boot-splash.png" alt="PU5C1VER5E boot splash" />
-        <div class="pw-hitbox">
-          <input id="pw" type="password" autocomplete="off" spellcheck="false" />
+<body>
+  <div class="wrap">
+
+    <div class="monitor-stage">
+      <img class="monitor-frame" src="monitor-frame.png" alt="Monitor frame">
+
+      <div class="screen" aria-label="PU5C1VER5E terminal screen">
+        <div class="screen-content" id="screenContent">
+
+          <!-- BOOT SPLASH -->
+          <div id="bootView" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
+            <img class="boot" src="boot-splash.png" alt="PU5C1VER5E boot splash">
+          </div>
+
+          <!-- LOGIN -->
+          <div id="loginView" class="login" style="display:none;">
+            <div class="line"><span class="prompt">&gt;&gt;</span> SYSTEM ONLINE...</div>
+            <div class="line"><span class="prompt">&gt;&gt;</span> PASSWORD RESTRICTED</div>
+            <div class="line" style="margin-top:6px;"><span class="prompt">&gt;&gt;</span> ENTER ACCESS CODE:</div>
+
+            <div class="inputRow">
+              <input id="codeInput" type="password" placeholder="access code" autocomplete="off" />
+              <button id="enterBtn">ENTER</button>
+            </div>
+
+            <div class="status" id="statusText"></div>
+          </div>
+
+          <!-- VIMEO -->
+          <div id="vimeoView" class="vimeoWrap" aria-label="Vimeo video">
+            <iframe
+              src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              title="Blinky DOS">
+            </iframe>
+          </div>
+
         </div>
       </div>
-
-      <div class="video" id="videoLayer">
-        <iframe
-          src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          title="Blinky DOS"></iframe>
-      </div>
     </div>
-
-    <img class="monitor" src="monitor-frame.png" alt="Monitor frame" />
 
     <div class="below">
-      Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a><br/>
-      © descend9down — Prototype materials for private review only.
+      Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a>
+      <div class="fineprint">© descend9down — Prototype materials for private review only.</div>
     </div>
+
   </div>
 
   <script>
-    (function(){
-      const PASSWORD = "probe";
-      const input = document.getElementById("pw");
-      const boot = document.getElementById("bootLayer");
-      const video = document.getElementById("videoLayer");
+    // --- CONFIG ---
+    const ACCESS_CODE = "probe";
 
-      // Focus the hidden input on click anywhere in the screen
-      document.querySelector(".screen").addEventListener("pointerdown", () => input.focus());
+    // Boot timing
+    const BOOT_MS = 1200;     // how long splash shows before login
+    const FAIL_SHAKE_MS = 280;
 
-      input.addEventListener("keydown", (e) => {
-        if(e.key === "Enter"){
-          const val = (input.value || "").trim().toLowerCase();
-          if(val === PASSWORD){
-            boot.classList.add("fadeOut");
-            setTimeout(() => {
-              boot.style.display = "none";
-              video.style.display = "block";
-              video.classList.add("fadeIn");
-            }, 360);
-          } else {
-            // quick “denied” feedback: shake the caret by clearing + refocus
-            input.value = "";
-            input.blur();
-            setTimeout(() => input.focus(), 40);
-          }
-        }
-      });
+    // Elements
+    const bootView  = document.getElementById("bootView");
+    const loginView = document.getElementById("loginView");
+    const vimeoView = document.getElementById("vimeoView");
 
-      window.addEventListener("load", () => input.focus());
-    })();
+    const codeInput = document.getElementById("codeInput");
+    const enterBtn  = document.getElementById("enterBtn");
+    const statusText= document.getElementById("statusText");
+
+    // Start on boot, then show login
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        bootView.style.display = "none";
+        loginView.style.display = "flex";
+        codeInput.focus();
+      }, BOOT_MS);
+    });
+
+    function setStatus(msg){
+      statusText.textContent = msg || "";
+    }
+
+    function goVimeo(){
+      loginView.style.display = "none";
+      vimeoView.style.display = "block";
+    }
+
+    function tryLogin(){
+      const val = (codeInput.value || "").trim().toLowerCase();
+      if(!val){
+        setStatus(">> CODE REQUIRED");
+        return;
+      }
+
+      if(val === ACCESS_CODE){
+        setStatus(">> ACCESS GRANTED...");
+        setTimeout(() => {
+          setStatus(">> ACCESSING ORACLE TRANSMISSION...");
+        }, 350);
+
+        setTimeout(() => {
+          goVimeo();
+        }, 900);
+      } else {
+        setStatus(">> ACCESS DENIED");
+        // quick visual feedback (tiny shake)
+        const el = loginView;
+        el.style.transform = "translateX(-6px)";
+        setTimeout(() => el.style.transform = "translateX(6px)", 70);
+        setTimeout(() => el.style.transform = "translateX(-4px)", 140);
+        setTimeout(() => el.style.transform = "translateX(4px)", 210);
+        setTimeout(() => el.style.transform = "translateX(0)", FAIL_SHAKE_MS);
+      }
+    }
+
+    enterBtn.addEventListener("click", tryLogin);
+    codeInput.addEventListener("keydown", (e) => {
+      if(e.key === "Enter") tryLogin();
+    });
   </script>
 </body>
 </html>
-
