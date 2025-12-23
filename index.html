@@ -1,363 +1,298 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PU5C1VER5E — Password Restricted</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PU5C1VER5E</title>
+
   <style>
     :root{
-      --bg:#000;
-      --green:#38ff6a;
-      --green-dim: rgba(56,255,106,.55);
-      --glow: 0 0 10px rgba(56,255,106,.35), 0 0 24px rgba(56,255,106,.20);
-      --radius: 18px;
+      --bg:#060a06;
+      --fg:#c8ffd8;
+      --accent:#6bff8a;
+      --muted:#7fbf8f;
+      --red:#ff5f5f;
+      --green:#6bff8a;
     }
 
-    html,body{height:100%;}
+    html,body{height:100%}
+
     body{
       margin:0;
-      background: radial-gradient(ellipse at center, rgba(56,255,106,.10) 0%, rgba(0,0,0,1) 60%);
-      color: var(--green);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
+      color:var(--fg);
+      background:radial-gradient(100% 140% at 50% 0%, #0b120b 0%, #050805 60%, #030503 100%);
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 28px 16px;
       overflow-x:hidden;
     }
 
-    /* subtle vignette + screen noise */
-    body::before{
+    /* CRT overlays */
+    .crt:before{
       content:"";
-      position:fixed; inset:0;
-      background:
-        radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 78%),
-        repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0px, rgba(255,255,255,.03) 1px, transparent 2px, transparent 4px);
-      mix-blend-mode: screen;
-      opacity:.12;
+      position:fixed;
+      inset:0;
       pointer-events:none;
+      background:repeating-linear-gradient(
+        0deg,
+        rgba(107,255,138,.08) 0px,
+        rgba(107,255,138,.03) 1px,
+        transparent 2px
+      );
+      mix-blend-mode:overlay;
+      opacity:.18;
     }
 
-    .wrap{
-      width:min(980px, 100%);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:18px;
-      text-align:center;
+    .crt:after{
+      content:"";
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:radial-gradient(60% 40% at 50% 120%, rgba(107,255,138,.14), transparent 60%);
     }
 
-    /* monitor stage */
-    .monitor-stage{
-      width:min(860px, 100%);
-      position:relative;
-      filter: drop-shadow(0 0 28px rgba(56,255,106,.16));
+    .wrap{max-width:960px; width:100%; padding:32px 20px; text-align:center}
+
+    h1{
+      font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+      font-size:clamp(28px,6vw,64px); margin:.1em 0 .2em;
+      text-shadow:0 0 18px rgba(107,255,138,.18);
     }
 
-    .monitor-frame{
+    .brand{
+      display:inline-block; padding:.18em .55em;
+      border:1px solid rgba(107,255,138,.55); border-radius:12px;
+      box-shadow:0 0 0 2px rgba(107,255,138,.18) inset, 0 0 20px rgba(107,255,138,.35);
+      background:linear-gradient(180deg, rgba(107,255,138,.18), rgba(107,255,138,.05));
+      backdrop-filter:blur(2px);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      letter-spacing:.12em;
+    }
+
+    .subtitle{
+      max-width:46ch; margin:10px auto 22px; color:var(--muted);
+      font-size:clamp(18px,3.2vw,24px); line-height:1.45;
+      text-shadow:0 0 14px rgba(107,255,138,.10);
+    }
+
+    .panel{
+      border:1px solid rgba(200,255,216,.10);
+      border-radius:16px; padding:16px;
+      background:rgba(10,16,10,.35);
+      box-shadow:0 12px 40px rgba(0,0,0,.45);
+      transition:transform .15s ease;
+    }
+
+    .video{
       width:100%;
-      height:auto;
-      display:block;
-      user-select:none;
-      -webkit-user-drag:none;
-      pointer-events:none;
-    }
-
-    /* Screen area inside the monitor — tune these if needed */
-    .screen{
-      position:absolute;
-      left: 13.5%;
-      top: 18.5%;
-      width: 73%;
-      height: 63%;
-      border-radius: 10px;
-      overflow:hidden;
+      aspect-ratio:16/9;
+      border-radius:12px;
       background:#000;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      box-shadow:inset 0 0 0 1px rgba(107,255,138,.12);
+    }
+
+    .muted{opacity:.85}
+
+    .meta{font-size:12px; color:rgba(200,255,216,.70); margin-top:8px}
+    .meta a{
+      color:var(--accent); text-decoration:none;
+      border-bottom:1px solid rgba(107,255,138,.35);
+    }
+    .meta a:hover{border-bottom-color:rgba(107,255,138,.75)}
+
+    .gate{
+      margin:22px auto 10px;
       display:flex;
-      align-items:center;
+      gap:8px;
       justify-content:center;
-    }
-
-    /* CRT effects */
-    .screen::before{
-      content:"";
-      position:absolute; inset:0;
-      background:
-        radial-gradient(ellipse at center, rgba(56,255,106,.08) 0%, rgba(0,0,0,.65) 70%),
-        repeating-linear-gradient(0deg, rgba(0,0,0,.0) 0px, rgba(0,0,0,.0) 2px, rgba(0,0,0,.10) 3px, rgba(0,0,0,.10) 4px);
-      opacity:.65;
-      pointer-events:none;
-    }
-    .screen::after{
-      content:"";
-      position:absolute; inset:-20%;
-      background: linear-gradient(90deg, rgba(255,0,0,.05), rgba(0,255,0,.03), rgba(0,180,255,.05));
-      mix-blend-mode: screen;
-      opacity:.08;
-      transform: rotate(0.5deg);
-      pointer-events:none;
-      animation: drift 10s linear infinite;
-    }
-    @keyframes drift{
-      0%{transform: translateX(-2%) rotate(.5deg);}
-      50%{transform: translateX(2%) rotate(.5deg);}
-      100%{transform: translateX(-2%) rotate(.5deg);}
-    }
-
-    .screen-content{
-      position:relative;
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 18px;
-    }
-
-    .boot{
-      width:min(640px, 100%);
-      height:auto;
-      image-rendering: pixelated;
-      filter: saturate(1.1) contrast(1.05) drop-shadow(0 0 10px rgba(56,255,106,.25));
-      opacity:.95;
-      transform: translateZ(0);
-      animation: bootFlicker 3.2s infinite;
-      user-select:none;
-      -webkit-user-drag:none;
-      pointer-events:none;
-    }
-    @keyframes bootFlicker{
-      0%, 100%{opacity:.94;}
-      9%{opacity:.86;}
-      10%{opacity:.98;}
-      52%{opacity:.90;}
-      53%{opacity:.98;}
-      71%{opacity:.92;}
-      72%{opacity:.99;}
-    }
-
-    .login{
-      width: 100%;
-      max-width: 620px;
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      text-align:left;
-    }
-
-    .line{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:flex-start;
-      color: var(--green);
-      text-shadow: var(--glow);
-      font-size: 15px;
-      line-height: 1.25;
-    }
-
-    .prompt{
-      color: var(--green-dim);
-    }
-
-    .inputRow{
-      display:flex;
-      gap:10px;
-      align-items:center;
       flex-wrap:wrap;
-      margin-top: 6px;
     }
 
-    input[type="password"]{
-      background: rgba(0,0,0,.55);
-      border: 1px solid rgba(56,255,106,.35);
-      color: var(--green);
-      padding: 10px 12px;
-      border-radius: 10px;
+    .gate input{
+      background:#070d08;
+      border:1px solid rgba(107,255,138,.35);
+      color:var(--fg);
+      border-radius:10px;
+      padding:10px 12px;
+      min-width:180px;
+      caret-color:var(--accent);
       outline:none;
-      width: min(260px, 80vw);
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), 0 0 12px rgba(56,255,106,.10);
-      font-family: inherit;
-      font-size: 15px;
+      transition:box-shadow .15s ease, border-color .15s ease;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      letter-spacing:.18em;
+      text-transform:uppercase;
     }
-    input[type="password"]::placeholder{color: rgba(56,255,106,.35);}
-
-    button{
-      background: rgba(56,255,106,.12);
-      border: 1px solid rgba(56,255,106,.35);
-      color: var(--green);
-      padding: 10px 14px;
-      border-radius: 10px;
-      cursor:pointer;
-      font-family: inherit;
-      font-size: 14px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      box-shadow: 0 0 14px rgba(56,255,106,.10);
+    .gate input::placeholder{
+      letter-spacing:.12em;
+      text-transform:none;
+      color:rgba(127,191,143,.85);
     }
-    button:hover{background: rgba(56,255,106,.18);}
-    button:active{transform: translateY(1px);}
-
-    .status{
-      min-height: 18px;
-      color: rgba(56,255,106,.75);
-      font-size: 13px;
+    .gate input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(107,255,138,.7), 0 0 14px rgba(107,255,138,.55);
     }
 
-    /* Vimeo */
-    .vimeoWrap{
-      width:100%;
-      height:100%;
-      display:none;
-      position:relative;
-    }
-    .vimeoWrap iframe{
-      width:100%;
-      height:100%;
-      border:0;
-      display:block;
-      border-radius: 10px;
-    }
-
-    /* page footer text */
-    .below{
-      width:min(860px, 100%);
-      color: rgba(56,255,106,.65);
-      font-size: 13px;
-      text-shadow: 0 0 10px rgba(56,255,106,.18);
-      margin-top: -6px;
-    }
-    .below a{
-      color: rgba(56,255,106,.90);
+    .btn{
+      display:inline-block;
+      margin:18px 8px 0;
+      padding:12px 16px;
+      border-radius:999px;
+      color:#031108;
+      background:var(--accent);
+      font-weight:700;
+      letter-spacing:.02em;
       text-decoration:none;
-      border-bottom: 1px dotted rgba(56,255,106,.55);
+      border:none;
+      cursor:pointer;
+      box-shadow:0 0 18px rgba(107,255,138,.22);
     }
-    .below a:hover{opacity:.9}
 
-    .fineprint{
-      color: rgba(56,255,106,.45);
-      font-size: 12px;
-      margin-top: 6px;
+    .stamp{
+      margin-top:14px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      letter-spacing:.12em;
+      color:rgba(107,255,138,.85);
+      opacity:.9;
+      font-size:11px;
+      text-shadow:0 0 12px rgba(107,255,138,.18);
+    }
+
+    footer{margin-top:22px; font-size:12px; color:rgba(200,255,216,.60)}
+    .err{color:var(--red); font-size:12px; margin-top:6px; min-height:16px}
+    .log{
+      margin-top:4px;
+      min-height:16px;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;
+      font-size:11px;
+      color:rgba(107,255,138,.90);
+      opacity:.95;
+      text-shadow:0 0 12px rgba(107,255,138,.18);
+    }
+
+    /* shake on access denied */
+    @keyframes shake {
+      0%{transform:translateX(0)}
+      20%{transform:translateX(-4px)}
+      40%{transform:translateX(4px)}
+      60%{transform:translateX(-3px)}
+      80%{transform:translateX(3px)}
+      100%{transform:translateX(0)}
+    }
+    .shake{animation:shake .22s ease-out}
+
+    /* flash on unlock */
+    .flash{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      background:radial-gradient(circle at 50% 50%, rgba(107,255,138,.35), transparent 60%);
+      mix-blend-mode:screen;
+      opacity:0;
+      transition:opacity .12s ease-out;
     }
   </style>
 </head>
 
-<body>
+<body class="crt">
   <div class="wrap">
+    <div class="brand">PU5C1VER5E</div>
+    <h1>CLASSIFIED</h1>
+    <p class="subtitle">A Psychospiritual Journey Through the Puscifer Mythos</p>
 
-    <div class="monitor-stage">
-      <img class="monitor-frame" src="monitor-frame.png" alt="Monitor frame">
+    <div class="panel" id="panel">
+      <div class="video" id="videoShell">
+        <div id="locked">
+          <p class="muted">
+            This file is sealed under SCI protocol.<br/>
+            Enter clearance code to proceed.
+          </p>
 
-      <div class="screen" aria-label="PU5C1VER5E terminal screen">
-        <div class="screen-content" id="screenContent">
-
-          <!-- BOOT SPLASH -->
-          <div id="bootView" style="width:100%; height:100%; display:flex; align-items:center; justify-content:center;">
-            <img class="boot" src="boot-splash.png" alt="PU5C1VER5E boot splash">
+          <div class="gate">
+            <input id="code" placeholder="Access code" aria-label="Access code" autocomplete="one-time-code" />
+            <button class="btn" id="unlockBtn">Unlock</button>
           </div>
 
-          <!-- LOGIN -->
-          <div id="loginView" class="login" style="display:none;">
-            <div class="line"><span class="prompt">&gt;&gt;</span> SYSTEM ONLINE...</div>
-            <div class="line"><span class="prompt">&gt;&gt;</span> PASSWORD RESTRICTED</div>
-            <div class="line" style="margin-top:6px;"><span class="prompt">&gt;&gt;</span> ENTER ACCESS CODE:</div>
-
-            <div class="inputRow">
-              <input id="codeInput" type="password" placeholder="access code" autocomplete="off" />
-              <button id="enterBtn">ENTER</button>
-            </div>
-
-            <div class="status" id="statusText"></div>
-          </div>
-
-          <!-- VIMEO -->
-          <div id="vimeoView" class="vimeoWrap" aria-label="Vimeo video">
-            <iframe
-              src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              title="Blinky DOS">
-            </iframe>
-          </div>
-
+          <div id="err" class="err"></div>
+          <div id="log" class="log">&gt;&gt; ENTER ACCESS CODE TO INITIATE UPLINK…</div>
+          <div class="stamp">CLEARANCE LEVEL: SCI &nbsp;•&nbsp; FILE: T is for TAROT_PROJECT</div>
         </div>
+      </div>
+
+      <div class="meta">
+        Don’t have the code? Request access:
+        <a href="mailto:evans.jimw@gmail.com">evans.jimw@gmail.com</a>
       </div>
     </div>
 
-    <div class="below">
-      Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a>
-      <div class="fineprint">© descend9down — Prototype materials for private review only.</div>
-    </div>
-
+    <footer>© J. Evans — Prototype materials for private review only.</footer>
   </div>
 
+  <div class="flash" id="flash"></div>
+
   <script>
-    // --- CONFIG ---
-    const ACCESS_CODE = "probe";
+    const PASS = "PROBE";
 
-    // Boot timing
-    const BOOT_MS = 1200;     // how long splash shows before login
-    const FAIL_SHAKE_MS = 280;
+    // Vimeo intro (plays after unlock)
+    const VIDEO_URL = "https://player.vimeo.com/video/1128635365?autoplay=1&muted=1&title=0&byline=0&portrait=0";
 
-    // Elements
-    const bootView  = document.getElementById("bootView");
-    const loginView = document.getElementById("loginView");
-    const vimeoView = document.getElementById("vimeoView");
+    const codeInput = document.getElementById('code');
+    const err = document.getElementById('err');
+    const log = document.getElementById('log');
+    const panel = document.getElementById('panel');
+    const flash = document.getElementById('flash');
+    const unlockBtn = document.getElementById('unlockBtn');
 
-    const codeInput = document.getElementById("codeInput");
-    const enterBtn  = document.getElementById("enterBtn");
-    const statusText= document.getElementById("statusText");
+    codeInput.focus();
 
-    // Start on boot, then show login
-    window.addEventListener("load", () => {
-      setTimeout(() => {
-        bootView.style.display = "none";
-        loginView.style.display = "flex";
-        codeInput.focus();
-      }, BOOT_MS);
+    // Enter key should unlock
+    codeInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') unlock();
     });
 
-    function setStatus(msg){
-      statusText.textContent = msg || "";
-    }
+    // Button unlock
+    unlockBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      unlock();
+    });
 
-    function goVimeo(){
-      loginView.style.display = "none";
-      vimeoView.style.display = "block";
-    }
+    function unlock(){
+      const v = codeInput.value.trim();
 
-    function tryLogin(){
-      const val = (codeInput.value || "").trim().toLowerCase();
-      if(!val){
-        setStatus(">> CODE REQUIRED");
-        return;
-      }
+      if (v.toUpperCase() === PASS){
+        log.textContent = ">> ACCESS GRANTED. ESTABLISHING UPLINK…";
+        err.textContent = "";
 
-      if(val === ACCESS_CODE){
-        setStatus(">> ACCESS GRANTED...");
-        setTimeout(() => {
-          setStatus(">> ACCESSING ORACLE TRANSMISSION...");
-        }, 350);
+        flash.style.opacity = "1";
+        setTimeout(() => flash.style.opacity = "0", 120);
 
-        setTimeout(() => {
-          goVimeo();
-        }, 900);
+        injectVideo();
       } else {
-        setStatus(">> ACCESS DENIED");
-        // quick visual feedback (tiny shake)
-        const el = loginView;
-        el.style.transform = "translateX(-6px)";
-        setTimeout(() => el.style.transform = "translateX(6px)", 70);
-        setTimeout(() => el.style.transform = "translateX(-4px)", 140);
-        setTimeout(() => el.style.transform = "translateX(4px)", 210);
-        setTimeout(() => el.style.transform = "translateX(0)", FAIL_SHAKE_MS);
+        err.textContent = "ACCESS DENIED.";
+        log.textContent = ">> INVALID CODE. CHECK CLEARANCE AND RETRY.";
+        panel.classList.add('shake');
+        setTimeout(() => {
+          panel.classList.remove('shake');
+          err.textContent = "";
+        }, 550);
       }
     }
 
-    enterBtn.addEventListener("click", tryLogin);
-    codeInput.addEventListener("keydown", (e) => {
-      if(e.key === "Enter") tryLogin();
-    });
+    function injectVideo(){
+      const shell = document.getElementById('videoShell');
+      shell.innerHTML = `
+        <iframe
+          src="${VIDEO_URL}"
+          title="PU5C1VER5E — Intro"
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          allowfullscreen
+          style="width:100%;height:100%;border:0;border-radius:12px;">
+        </iframe>
+      `;
+    }
   </script>
 </body>
 </html>
