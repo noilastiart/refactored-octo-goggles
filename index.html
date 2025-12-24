@@ -3,60 +3,56 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E</title>
+  <title>PU5C1VER5E — Restricted</title>
 
+  <!-- Optional: closer “terminal” vibe -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#020402;
-      --green:#39ff5a;
-      --green-dim: rgba(57,255,90,.65);
-      --glow: 0 0 10px rgba(57,255,90,.45), 0 0 28px rgba(57,255,90,.18);
+      /* === SCREEN WINDOW TUNING ===
+         These MUST match the monitor-frame.png “glass” area.
+         Adjust these 4 values until it lines up perfectly. */
+      --screen-left: 16.7%;
+      --screen-top: 18.4%;
+      --screen-w: 66.6%;
+      --screen-h: 62.0%;
+      --screen-radius: 16px;
 
-      /* ✅ SCREEN ALIGNMENT: tune these 4 values once to match your Vimeo clip perfectly */
-      --screen-left: 13.5%;
-      --screen-top: 18.5%;
-      --screen-w: 73%;
-      --screen-h: 63%;
-
-      --screen-radius: 12px;
+      --green: #39ff5a;
+      --green-dim: rgba(57,255,90,.55);
+      --bg: #050805;
     }
 
-    html,body{height:100%; margin:0;}
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
     body{
-      background: radial-gradient(ellipse at center, rgba(57,255,90,.10) 0%, var(--bg) 62%, #000 100%);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 22px 14px;
-      font-family: "Share Tech Mono", ui-monospace, Menlo, Consolas, monospace;
+      margin:0;
+      background: radial-gradient(circle at 50% 35%, rgba(30,70,30,.35), rgba(0,0,0,1) 62%);
       color: var(--green);
-      overflow-x:hidden;
+      font-family: "VT323", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      overflow:hidden;
     }
-    *{box-sizing:border-box}
 
+    /* Stage centers the monitor */
     .stage{
-      width:min(1100px, 96vw);
-      aspect-ratio: 16/10;
       position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+      height:100%;
+      width:100%;
+      display:grid;
+      place-items:center;
     }
 
-    /* Monitor frame */
-    .monitor{
-      position:absolute;
-      inset:0;
-      background: url("./monitor-frame.png") center/contain no-repeat;
-      pointer-events:none;
+    .monitor-wrap{
+      position:relative;
+      width:min(900px, 92vw);
+      aspect-ratio: 4 / 3; /* tweak if your monitor frame art is different */
       filter: drop-shadow(0 30px 55px rgba(0,0,0,.65));
     }
 
-    /* Screen window inside monitor */
+    /* The CRT glass area (everything inside here) */
     .screen{
       position:absolute;
       left: var(--screen-left);
@@ -72,7 +68,18 @@
         0 0 60px rgba(57,255,90,.08);
     }
 
-    /* CRT scanlines + vignette */
+    /* Content anchor inside CRT */
+    .screen-content{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 24px;
+      z-index:1;
+    }
+
+    /* Scanlines + vignette (above everything) */
     .screen::before{
       content:"";
       position:absolute; inset:-2px;
@@ -87,162 +94,207 @@
       opacity:.55;
       pointer-events:none;
       mix-blend-mode:multiply;
+      z-index:5;
     }
 
-    /* Canvas FX layer */
-    canvas{
+    /* subtle glow/flicker */
+    .screen::after{
+      content:"";
+      position:absolute; inset:0;
+      background: radial-gradient(circle at 50% 35%, rgba(57,255,90,.10), transparent 58%);
+      opacity:.8;
+      mix-blend-mode: screen;
+      pointer-events:none;
+      z-index:4;
+      animation: flicker 5.5s infinite;
+    }
+    @keyframes flicker{
+      0%,100%{ opacity:.75; }
+      50%{ opacity:.95; }
+      52%{ opacity:.62; }
+      54%{ opacity:.90; }
+    }
+
+    /* Monitor frame art above the CRT */
+    .monitor{
       position:absolute;
       inset:0;
+      background: url("./monitor-frame.png") center/contain no-repeat;
+      pointer-events:none;
+      z-index:10;
+    }
+
+    /* Boot UI layout */
+    .boot{
       width:100%;
       height:100%;
-    }
-
-    /* UI layer */
-    .ui{
-      position:absolute;
-      inset:0;
       display:flex;
       flex-direction:column;
-      align-items:center;
       justify-content:center;
+      align-items:center;
       gap: 14px;
-      padding: 6% 8%;
-      pointer-events:none;
       text-align:center;
+      user-select:none;
+    }
+
+    .tinyline{
+      position:absolute;
+      top: 10px;
+      left: 14px;
+      font-size: 22px;
+      letter-spacing: .5px;
+      opacity:.9;
+    }
+
+    .title{
+      font-size: clamp(44px, 7vw, 84px);
+      letter-spacing: 2px;
+      line-height: .95;
+      text-shadow: 0 0 10px rgba(57,255,90,.35);
+      margin-top: 26px;
     }
 
     .subtitle{
-      font-family: "VT323", monospace;
-      font-size: clamp(18px, 2.2vw, 30px);
-      letter-spacing: .08em;
-      color: rgba(57,255,90,.90);
-      text-shadow: var(--glow);
-      opacity:0;
-      transform: translateY(6px);
-      transition: opacity .45s ease, transform .45s ease;
-      line-height:1.05;
+      font-size: clamp(18px, 2.3vw, 30px);
+      opacity:.9;
+      min-height: 34px; /* keeps layout stable while typing */
+      text-shadow: 0 0 8px rgba(57,255,90,.20);
     }
 
-    .login{
+    .row{
       display:flex;
       align-items:center;
-      gap: 10px;
-      flex-wrap:wrap;
       justify-content:center;
+      gap: 10px;
+      margin-top: 6px;
       opacity:0;
-      transform: translateY(10px);
-      transition: opacity .85s ease, transform .85s ease;
-      pointer-events:auto;
-      margin-top: 2px;
+      transform: translateY(8px);
+      transition: opacity 900ms ease, transform 900ms ease;
+    }
+    .row.revealed{
+      opacity:1;
+      transform: translateY(0);
     }
 
     .label{
-      font-family:"VT323", monospace;
-      font-size: 30px;
-      color: rgba(57,255,90,.92);
-      text-shadow: var(--glow);
+      font-size: 26px;
+      opacity:.9;
     }
 
-    input{
-      width: 220px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid rgba(57,255,90,.25);
+    input.code{
+      font-family: inherit;
+      font-size: 26px;
+      color: var(--green);
       background: rgba(0,0,0,.55);
-      color: rgba(57,255,90,.95);
-      outline:none;
-      font-family:"Share Tech Mono", monospace;
-      font-size: 16px;
-      letter-spacing:.14em;
-      text-transform: uppercase;
-      box-shadow: inset 0 0 18px rgba(57,255,90,.10);
-    }
-    input:focus{
-      border-color: rgba(57,255,90,.55);
-      box-shadow: inset 0 0 18px rgba(57,255,90,.18), 0 0 20px rgba(57,255,90,.12);
-    }
-
-    button{
-      padding: 10px 14px;
+      border: 1px solid rgba(57,255,90,.35);
       border-radius: 10px;
-      border: 1px solid rgba(57,255,90,.32);
-      background: rgba(0,0,0,.40);
-      color: rgba(57,255,90,.92);
-      font-family:"Share Tech Mono", monospace;
-      font-size: 14px;
-      letter-spacing: .14em;
+      padding: 8px 12px;
+      width: min(240px, 52vw);
+      outline: none;
+      box-shadow: inset 0 0 18px rgba(57,255,90,.10), 0 0 18px rgba(57,255,90,.08);
       text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    input.code::placeholder{ color: rgba(57,255,90,.35); }
+
+    button.enter{
+      font-family: inherit;
+      font-size: 26px;
+      color: var(--bg);
+      background: rgba(57,255,90,.85);
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
       cursor:pointer;
-      box-shadow: 0 0 18px rgba(57,255,90,.10);
+      box-shadow: 0 0 24px rgba(57,255,90,.25);
     }
-    button:hover{border-color: rgba(57,255,90,.55); box-shadow: 0 0 22px rgba(57,255,90,.16);}
-    button:active{transform: translateY(1px);}
+    button.enter:hover{ filter: brightness(1.05); }
 
-    .status{
-      min-height: 18px;
-      font-size: 12px;
-      color: rgba(57,255,90,.70);
-      text-shadow: 0 0 12px rgba(57,255,90,.12);
-      margin-top: 2px;
-      pointer-events:none;
+    .hint{
+      position:absolute;
+      bottom: 10px;
+      left: 0;
+      right: 0;
+      font-size: 20px;
+      opacity:.7;
+      text-align:center;
     }
 
-    /* Vimeo layer (inside screen) */
-    .playerWrap{
-      position:absolute; inset:0;
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .65s ease;
-      background:#000;
+    .hint a{ color: rgba(57,255,90,.95); text-decoration:none; border-bottom:1px dotted rgba(57,255,90,.4); }
+    .hint a:hover{ opacity:1; }
+
+    /* Canvas sits behind text in CRT */
+    #fx{
+      position:absolute;
+      inset:0;
+      z-index:0;
     }
-    .playerWrap.on{
-      opacity:1;
-      pointer-events:auto;
+
+    /* When we swap to video */
+    .video-wrap{
+      width:100%;
+      height:100%;
+      display:flex;
+      align-items:stretch;
+      justify-content:stretch;
     }
-    .playerWrap iframe{
-      position:absolute; inset:0;
-      width:100%; height:100%;
+    .video-wrap iframe{
+      width:100%;
+      height:100%;
       border:0;
     }
 
-    /* tiny boot line */
-    .bootline{
-      position:absolute;
-      left: 5%;
-      top: 7%;
-      font-size: 13px;
-      letter-spacing:.12em;
-      color: rgba(57,255,90,.78);
-      text-shadow: var(--glow);
-      opacity:0;
-      transition: opacity .35s ease;
-      pointer-events:none;
-      white-space:pre;
+    .errorflash{
+      animation: err 420ms ease 0s 2;
     }
-    .bootline.on{opacity:1;}
+    @keyframes err{
+      0%,100%{ filter:none; }
+      50%{ filter: hue-rotate(80deg) brightness(1.1); }
+    }
   </style>
 </head>
 
 <body>
   <div class="stage">
-    <div class="screen" id="screen">
-      <canvas id="fx"></canvas>
+    <div class="monitor-wrap">
+      <div class="screen" id="screen">
+        <canvas id="fx"></canvas>
 
-      <div class="bootline" id="bootline">>> LINK ESTABLISHED...</div>
+        <div class="screen-content">
+          <div class="boot" id="boot">
+            <div class="tinyline">&gt;&gt; LINK ESTABLISHED...</div>
 
-      <div class="ui">
-        <div class="subtitle" id="subtitle"></div>
+            <div class="title" id="title">PU5C1VER5E</div>
 
-        <div class="login" id="login">
-          <div class="label">ACCESS CODE:</div>
-          <input id="code" autocomplete="off" spellcheck="false" />
-          <button id="enter">ENTER</button>
+            <div class="subtitle" id="subtitle"></div>
+
+            <div class="row" id="gate">
+              <div class="label">ACCESS CODE:</div>
+              <input class="code" id="code" placeholder="•••••" autocomplete="off" />
+              <button class="enter" id="enter">ENTER</button>
+            </div>
+
+            <div class="hint">
+              Don’t have the code? Request access:
+              <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a>
+              <br/>
+              © descend9down — Prototype materials for private review only.
+            </div>
+          </div>
         </div>
-
-        <div class="status" id="status"></div>
       </div>
 
-      <div class="playerWrap" id="playerWrap">
+      <div class="monitor"></div>
+    </div>
+  </div>
+
+  <script>
+    // ========= SETTINGS =========
+    const ACCESS_CODE = "PROBE";
+
+    // Vimeo embed (same as you pasted). Kept 100% sized inside .screen
+    const VIMEO_IFRAME_HTML = `
+      <div class="video-wrap">
         <iframe
           src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
           allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
@@ -250,298 +302,299 @@
           title="Blinky DOS">
         </iframe>
       </div>
-    </div>
+    `;
 
-    <div class="monitor"></div>
-  </div>
+    // Timing (tweakable)
+    const UFO_HOLD_MS = 2000;            // "UFO hovering in the middle for like 2 sec"
+    const SWARM_DURATION_MS = 2400;      // slightly slower scrawl
+    const TYPE_SPEED_MS = 42;            // subtitle typing speed (lower = faster)
+    const GATE_REVEAL_DELAY_MS = 650;    // after typing finishes
 
-<script>
-(() => {
-  // ====== CONFIG ======
-  const WORD = "PU5C1VER5E";
-  const SUBTITLE = "A Psychospiritual Journey Through the Puscifer Mythos";
-  const CORRECT_CODE = "PROBE";
+    // ========= CANVAS FX =========
+    const canvas = document.getElementById('fx');
+    const screenEl = document.getElementById('screen');
+    const ctx = canvas.getContext('2d');
 
-  // ✅ Scrawl timing: “a tad slower”
-  const FORM_TIME_MS = 3200;      // was ~2400; slower without dragging
-  const AFTER_FORM_DELAY_MS = 350;
-
-  // Subtitle typing
-  const TYPE_SPEED_MS = 22;
-
-  // Slow reveal of password box
-  const LOGIN_REVEAL_DELAY_MS = 520;
-
-  // Block/grid
-  const DENSITY = 0.64;           // 0..1 block fill from text mask
-  const EDGE_PULL = 0.55;         // how “edgey” the spawn feels
-
-  // ====== ELEMENTS ======
-  const canvas = document.getElementById("fx");
-  const ctx = canvas.getContext("2d", { alpha: true });
-
-  const subtitleEl = document.getElementById("subtitle");
-  const loginEl = document.getElementById("login");
-  const codeEl = document.getElementById("code");
-  const enterBtn = document.getElementById("enter");
-  const statusEl = document.getElementById("status");
-  const playerWrap = document.getElementById("playerWrap");
-  const bootline = document.getElementById("bootline");
-
-  // ====== HELPERS ======
-  const lerp = (a,b,t) => a + (b-a)*t;
-  const easeOutCubic = t => 1 - Math.pow(1-t, 3);
-  const clamp = (v,min,max) => Math.max(min, Math.min(max, v));
-  const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-  function resize(){
-    const r = canvas.getBoundingClientRect();
-    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    canvas.width = Math.floor(r.width * dpr);
-    canvas.height = Math.floor(r.height * dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-  }
-
-  function buildTargets(){
-    const w = canvas.getBoundingClientRect().width;
-    const h = canvas.getBoundingClientRect().height;
-
-    const off = document.createElement("canvas");
-    off.width = Math.floor(w);
-    off.height = Math.floor(h);
-    const o = off.getContext("2d");
-
-    o.clearRect(0,0,off.width,off.height);
-
-    const fontSize = Math.floor(Math.min(w*0.20, 210));
-    o.font = `700 ${fontSize}px VT323, Share Tech Mono, monospace`;
-    o.textAlign = "center";
-    o.textBaseline = "middle";
-
-    // draw twice for a slightly “rastered terminal” vibe
-    o.fillStyle = "#00ff55";
-    o.globalAlpha = 1;
-    o.fillText(WORD, off.width/2, off.height/2 - off.height*0.03);
-    o.globalAlpha = 0.55;
-    o.fillText(WORD, off.width/2 + 1, off.height/2 - off.height*0.03 + 1);
-
-    const img = o.getImageData(0,0,off.width,off.height).data;
-
-    const cell = Math.max(7, Math.floor(Math.min(w,h) / 68)); // chunky blocks
-    const targets = [];
-
-    for (let y=0; y<off.height; y+=cell) {
-      for (let x=0; x<off.width; x+=cell) {
-        const sx = Math.floor(x + cell/2);
-        const sy = Math.floor(y + cell/2);
-        const idx = (sy*off.width + sx) * 4;
-        const a = img[idx+3];
-        if (a > 18 && Math.random() < DENSITY) targets.push({ tx:x, ty:y, size:cell });
-      }
+    function resizeCanvas(){
+      const r = screenEl.getBoundingClientRect();
+      canvas.width = Math.max(1, Math.floor(r.width * devicePixelRatio));
+      canvas.height = Math.max(1, Math.floor(r.height * devicePixelRatio));
+      canvas.style.width = r.width + "px";
+      canvas.style.height = r.height + "px";
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
     }
-    return targets;
-  }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-  function spawnParticles(targets){
-    const w = canvas.getBoundingClientRect().width;
-    const h = canvas.getBoundingClientRect().height;
+    // Simple "pixel" swarm particles
+    const particles = [];
+    let t0 = performance.now();
+    let animState = "ufo"; // "ufo" -> "swarm" -> "idle" -> "video"
 
-    const parts = targets.map((t,i) => {
-      // bias spawns to edges (centipede-ish)
-      let edge;
-      if (Math.random() < EDGE_PULL) edge = Math.floor(Math.random()*4);
-      else edge = -1;
+    function rand(min,max){ return Math.random()*(max-min)+min; }
 
-      let x,y;
-      if (edge === 0) { x = Math.random()*w; y = -30 - Math.random()*80; }
-      else if (edge === 1) { x = w+30 + Math.random()*80; y = Math.random()*h; }
-      else if (edge === 2) { x = Math.random()*w; y = h+30 + Math.random()*80; }
-      else if (edge === 3) { x = -30 - Math.random()*80; y = Math.random()*h; }
-      else { // occasional interior spawn for “swarm” energy
-        x = Math.random()*w;
-        y = Math.random()*h;
-      }
-
-      const phase = Math.random()*Math.PI*2;
-      const freq = 2 + Math.random()*2.6;
-      const amp  = 7 + Math.random()*12;
-
-      return {
-        x,y, sx:x, sy:y,
-        tx:t.tx, ty:t.ty,
-        size:t.size,
-        phase, freq, amp,
-        delay: 0
-      };
-    });
-
-    // order by x for “writing” motion, then stagger delays
-    parts.sort((a,b) => (a.tx - b.tx) + (a.ty - b.ty)*0.10);
-    parts.forEach((p,i) => p.delay = (i / parts.length) * 0.58); // scrawl pass
-    return parts;
-  }
-
-  function drawBlock(p, alpha){
-    ctx.globalAlpha = alpha;
-    ctx.shadowColor = "rgba(57,255,90,0.55)";
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = "rgba(57,255,90,0.95)";
-    ctx.fillRect(p.x, p.y, p.size-1, p.size-1);
-
-    ctx.shadowBlur = 0;
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
-    ctx.fillRect(p.x+1, p.y+1, Math.max(1,p.size-4), Math.max(1,p.size-4));
-  }
-
-  async function typeText(el, text){
-    el.textContent = "";
-    el.style.opacity = 1;
-    el.style.transform = "translateY(0px)";
-    for (let i=0; i<text.length; i++){
-      el.textContent += text[i];
-      await sleep(TYPE_SPEED_MS);
-    }
-  }
-
-  function revealLogin(){
-    setTimeout(() => {
-      loginEl.style.opacity = 1;
-      loginEl.style.transform = "translateY(0)";
-      codeEl.focus();
-    }, LOGIN_REVEAL_DELAY_MS);
-  }
-
-  function setStatus(msg){
-    statusEl.textContent = msg || "";
-  }
-
-  function unlock(){
-    subtitleEl.textContent = "ACCESS GRANTED...";
-    setStatus("");
-    // fade to Vimeo inside same screen
-    playerWrap.classList.add("on");
-  }
-
-  function checkCode(){
-    const v = (codeEl.value || "").trim().toUpperCase();
-    if (v === CORRECT_CODE){
-      unlock();
-    } else {
-      setStatus(">> ACCESS DENIED");
-      codeEl.value = "";
-      codeEl.focus();
-      setTimeout(() => setStatus(""), 900);
-    }
-  }
-
-  // ====== MAIN ======
-  let particles = [];
-  let start = 0;
-  let formed = false;
-
-  function animate(ts){
-    if (!start) start = ts;
-    const t = ts - start;
-
-    const w = canvas.getBoundingClientRect().width;
-    const h = canvas.getBoundingClientRect().height;
-
-    ctx.clearRect(0,0,w,h);
-
-    // faint base glow
-    ctx.globalAlpha = 0.10;
-    ctx.fillStyle = "rgba(57,255,90,0.10)";
-    ctx.fillRect(0,0,w,h);
-
-    const total = FORM_TIME_MS;
-    let done = 0;
-
-    particles.forEach(p => {
-      const local = clamp((t/total - p.delay) / (1 - p.delay), 0, 1);
-      const e = easeOutCubic(local);
-
-      // “centipede scrawl” wiggle while traveling
-      const wig = (1 - e);
-      const ox = Math.sin(p.phase + local * Math.PI * p.freq) * p.amp * wig;
-      const oy = Math.cos(p.phase + local * Math.PI * p.freq) * (p.amp*0.65) * wig;
-
-      p.x = lerp(p.sx, p.tx, e) + ox;
-      p.y = lerp(p.sy, p.ty, e) + oy;
-
-      drawBlock(p, 0.35 + 0.65 * e);
-
-      if (local >= 1) done++;
-    });
-
-    // occasional scan flash
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle = "rgba(57,255,90,0.25)";
-    const yy = (t * 0.05) % h;
-    ctx.fillRect(0, yy, w, 2);
-
-    if (!formed && done === particles.length && t > total){
-      formed = true;
-
-      // lock final crisp frame
+    function drawUFO(){
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
       ctx.clearRect(0,0,w,h);
-      particles.forEach(p => { p.x=p.tx; p.y=p.ty; drawBlock(p, 1); });
 
-      (async () => {
-        await sleep(AFTER_FORM_DELAY_MS);
-        await typeText(subtitleEl, SUBTITLE);
-        revealLogin();
-      })();
+      // faint glow
+      ctx.save();
+      ctx.globalAlpha = 0.25;
+      ctx.fillStyle = "#39ff5a";
+      ctx.beginPath();
+      ctx.ellipse(w*0.5, h*0.42, w*0.18, h*0.10, 0, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
 
-      requestAnimationFrame(flickerLoop);
-      return;
+      // UFO body (stylized silhouette)
+      ctx.save();
+      ctx.fillStyle = "#39ff5a";
+      ctx.globalAlpha = 0.85;
+
+      // dome
+      ctx.beginPath();
+      ctx.ellipse(w*0.5, h*0.38, w*0.08, h*0.06, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // saucer
+      ctx.beginPath();
+      ctx.ellipse(w*0.5, h*0.44, w*0.18, h*0.06, 0, 0, Math.PI*2);
+      ctx.fill();
+
+      // lights
+      ctx.globalAlpha = 0.65;
+      for(let i=0;i<7;i++){
+        const x = w*(0.38 + i*0.04);
+        const y = h*0.455;
+        ctx.beginPath();
+        ctx.arc(x,y,3,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // faint scan "beam"
+      ctx.save();
+      ctx.globalAlpha = 0.10;
+      ctx.fillStyle = "#39ff5a";
+      ctx.beginPath();
+      ctx.moveTo(w*0.5 - w*0.10, h*0.48);
+      ctx.lineTo(w*0.5 + w*0.10, h*0.48);
+      ctx.lineTo(w*0.5 + w*0.18, h*0.82);
+      ctx.lineTo(w*0.5 - w*0.18, h*0.82);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     }
 
-    requestAnimationFrame(animate);
-  }
+    function makeTextTargets(text){
+      // Build pixel targets from text using offscreen canvas
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
 
-  function flickerLoop(ts){
-    const w = canvas.getBoundingClientRect().width;
-    const h = canvas.getBoundingClientRect().height;
-    ctx.clearRect(0,0,w,h);
+      const off = document.createElement('canvas');
+      off.width = w;
+      off.height = h;
+      const oc = off.getContext('2d');
 
-    const jitter = (Math.random() * 0.08);
-    particles.forEach(p => drawBlock(p, 0.92 + jitter));
+      // draw the title with chunky block feel (we mimic your dotted aesthetic with sampling)
+      oc.clearRect(0,0,w,h);
+      oc.fillStyle = "#39ff5a";
 
-    ctx.globalAlpha = 0.07;
-    ctx.fillStyle = "rgba(57,255,90,0.22)";
-    const y = (ts*0.06) % h;
-    ctx.fillRect(0, y, w, 2);
+      // Big title
+      const fontSize = Math.min(92, Math.max(56, w*0.14));
+      oc.font = `700 ${fontSize}px VT323, monospace`;
+      oc.textAlign = "center";
+      oc.textBaseline = "middle";
+      oc.fillText(text, w*0.5, h*0.52);
 
-    requestAnimationFrame(flickerLoop);
-  }
+      const img = oc.getImageData(0,0,w,h).data;
 
-  function init(){
-    resize();
-    subtitleEl.style.opacity = 0;
-    subtitleEl.textContent = "";
-    loginEl.style.opacity = 0;
-    loginEl.style.transform = "translateY(10px)";
-    setStatus("");
-    playerWrap.classList.remove("on");
-    codeEl.value = "";
+      const targets = [];
+      const step = 6; // bigger = chunkier blocks
+      for(let y=0;y<h;y+=step){
+        for(let x=0;x<w;x+=step){
+          const idx = (y*w + x)*4 + 3; // alpha
+          if(img[idx] > 20){
+            targets.push({x, y});
+          }
+        }
+      }
+      return targets;
+    }
 
-    const targets = buildTargets();
-    particles = spawnParticles(targets);
+    function seedSwarm(targets){
+      particles.length = 0;
 
-    setTimeout(() => bootline.classList.add("on"), 260);
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
 
-    start = 0;
-    formed = false;
-    requestAnimationFrame(animate);
-  }
+      // particles start from edges (centipede-ish crawl from different areas)
+      for(let i=0;i<targets.length;i++){
+        const tr = targets[i];
 
-  window.addEventListener("resize", init);
+        // spawn from random edge
+        const edge = Math.floor(rand(0,4));
+        let sx, sy;
+        if(edge===0){ sx = rand(-40, w+40); sy = -30; }
+        if(edge===1){ sx = w+30; sy = rand(-40, h+40); }
+        if(edge===2){ sx = rand(-40, w+40); sy = h+30; }
+        if(edge===3){ sx = -30; sy = rand(-40, h+40); }
 
-  enterBtn.addEventListener("click", checkCode);
-  codeEl.addEventListener("keydown", (e) => { if (e.key === "Enter") checkCode(); });
+        particles.push({
+          x:sx, y:sy,
+          vx:0, vy:0,
+          tx: tr.x,
+          ty: tr.y,
+          // stagger gives that crawling/scrawl feel
+          delay: (i % 260) * 3.0,
+          alive: true
+        });
+      }
+    }
 
-  init();
-})();
-</script>
+    function drawSwarm(elapsed){
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.clearRect(0,0,w,h);
+
+      // draw particles
+      ctx.save();
+      ctx.fillStyle = "#39ff5a";
+      ctx.globalAlpha = 0.85;
+
+      const k = 0.08;   // spring strength
+      const damp = 0.80;
+
+      let doneCount = 0;
+
+      for(const p of particles){
+        const localT = elapsed - p.delay;
+        if(localT < 0){
+          continue; // not started yet
+        }
+
+        // move toward target
+        const dx = (p.tx - p.x);
+        const dy = (p.ty - p.y);
+
+        p.vx = (p.vx + dx * k) * damp;
+        p.vy = (p.vy + dy * k) * damp;
+
+        // add slight wave noise for “crawl”
+        p.vx += Math.sin((elapsed*0.01) + p.tx*0.02) * 0.12;
+        p.vy += Math.cos((elapsed*0.01) + p.ty*0.02) * 0.12;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // draw chunky dot
+        ctx.fillRect(p.x, p.y, 3, 3);
+
+        if(Math.abs(dx) < 1.2 && Math.abs(dy) < 1.2){
+          doneCount++;
+        }
+      }
+
+      ctx.restore();
+
+      // If most particles are at rest, we’re effectively done
+      const ratio = doneCount / particles.length;
+      return ratio > 0.65;
+    }
+
+    // ========= BOOT SEQUENCE =========
+    const subtitleEl = document.getElementById('subtitle');
+    const gateEl = document.getElementById('gate');
+    const codeEl = document.getElementById('code');
+    const enterBtn = document.getElementById('enter');
+    const bootEl = document.getElementById('boot');
+
+    function typeText(el, text, speed){
+      el.textContent = "";
+      return new Promise(resolve=>{
+        let i=0;
+        const tick = ()=>{
+          el.textContent += text[i];
+          i++;
+          if(i < text.length) setTimeout(tick, speed);
+          else resolve();
+        };
+        setTimeout(tick, 220);
+      });
+    }
+
+    async function runBoot(){
+      // 1) UFO hover
+      animState = "ufo";
+      const start = performance.now();
+      while(performance.now() - start < UFO_HOLD_MS){
+        drawUFO();
+        await new Promise(r=>requestAnimationFrame(r));
+      }
+
+      // 2) Swarm into PU5C1VER5E
+      animState = "swarm";
+      const targets = makeTextTargets("PU5C1VER5E");
+      seedSwarm(targets);
+
+      const swarmStart = performance.now();
+      let settled = false;
+      while(!settled && (performance.now() - swarmStart) < (SWARM_DURATION_MS + 1800)){
+        const e = performance.now() - swarmStart;
+        settled = drawSwarm(e);
+        await new Promise(r=>requestAnimationFrame(r));
+      }
+
+      // keep final swarm “as title” by stopping canvas clears
+      animState = "idle";
+
+      // 3) Type subtitle
+      await typeText(subtitleEl, "A Psychospiritual Journey Through the Puscifer Mythos", TYPE_SPEED_MS);
+
+      // 4) Slow reveal password UI
+      setTimeout(()=> gateEl.classList.add('revealed'), GATE_REVEAL_DELAY_MS);
+
+      // focus the code field for convenience
+      setTimeout(()=> codeEl.focus(), GATE_REVEAL_DELAY_MS + 450);
+    }
+
+    // ========= GATE -> VIMEO =========
+    function swapToVimeo(){
+      animState = "video";
+      // stop drawing canvas
+      ctx.clearRect(0,0,canvas.clientWidth, canvas.clientHeight);
+
+      // replace boot UI inside screen-content
+      const sc = document.querySelector('.screen-content');
+      sc.innerHTML = VIMEO_IFRAME_HTML;
+    }
+
+    function badCodeFlash(){
+      bootEl.classList.remove('errorflash');
+      void bootEl.offsetWidth;
+      bootEl.classList.add('errorflash');
+    }
+
+    function checkCode(){
+      const v = (codeEl.value || "").trim().toUpperCase();
+      if(v === ACCESS_CODE){
+        swapToVimeo();
+      }else{
+        badCodeFlash();
+        codeEl.value = "";
+        codeEl.focus();
+      }
+    }
+
+    enterBtn.addEventListener('click', checkCode);
+    codeEl.addEventListener('keydown', (e)=>{
+      if(e.key === "Enter") checkCode();
+    });
+
+    // Kick it off
+    runBoot();
+  </script>
 </body>
 </html>
