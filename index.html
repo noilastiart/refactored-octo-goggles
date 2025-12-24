@@ -3,53 +3,52 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E — Restricted</title>
+  <title>PU5C1VER5E</title>
 
-  <!-- Closest “DOS-ish” vibes without overthinking -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <style>
     :root{
-      --bg:#050705;
+      --bg:#020402;
       --green:#39ff5a;
-      --green2:#19c83a;
-      --glow: 0 0 10px rgba(57,255,90,.55), 0 0 28px rgba(57,255,90,.22);
+      --green-dim: rgba(57,255,90,.65);
+      --glow: 0 0 10px rgba(57,255,90,.45), 0 0 28px rgba(57,255,90,.18);
 
-      /* Adjust these if your monitor frame has a different “screen window” */
-      --screen-inset-x: 10.5%;
-      --screen-inset-y: 12.5%;
-      --screen-width: 79%;
-      --screen-height: 74%;
+      /* ✅ SCREEN ALIGNMENT: tune these 4 values once to match your Vimeo clip perfectly */
+      --screen-left: 13.5%;
+      --screen-top: 18.5%;
+      --screen-w: 73%;
+      --screen-h: 63%;
 
-      --radius: 18px;
+      --screen-radius: 12px;
     }
 
-    html,body{height:100%; margin:0; background: radial-gradient(ellipse at center, #071007 0%, var(--bg) 62%, #000 100%); color:#d6ffd9;}
-    body{display:flex; align-items:center; justify-content:center; font-family:"Share Tech Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+    html,body{height:100%; margin:0;}
+    body{
+      background: radial-gradient(ellipse at center, rgba(57,255,90,.10) 0%, var(--bg) 62%, #000 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 22px 14px;
+      font-family: "Share Tech Mono", ui-monospace, Menlo, Consolas, monospace;
+      color: var(--green);
+      overflow-x:hidden;
+    }
     *{box-sizing:border-box}
 
     .stage{
-      width:min(1100px, 94vw);
+      width:min(1100px, 96vw);
       aspect-ratio: 16/10;
       position:relative;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 1.5rem;
     }
 
-    /* MONITOR frame */
+    /* Monitor frame */
     .monitor{
-      position:relative;
-      width:100%;
-      height:100%;
-      background: transparent;
-      display:block;
-    }
-
-    .monitor-frame{
       position:absolute;
       inset:0;
       background: url("./monitor.png") center/contain no-repeat;
@@ -60,88 +59,86 @@
     /* Screen window inside monitor */
     .screen{
       position:absolute;
-      left: var(--screen-inset-x);
-      top: var(--screen-inset-y);
-      width: var(--screen-width);
-      height: var(--screen-height);
-      border-radius: var(--radius);
+      left: var(--screen-left);
+      top: var(--screen-top);
+      width: var(--screen-w);
+      height: var(--screen-h);
+      border-radius: var(--screen-radius);
       overflow:hidden;
-      background: radial-gradient(ellipse at center, rgba(20,40,20,.65) 0%, rgba(0,0,0,.92) 68%, rgba(0,0,0,.98) 100%);
+      background: radial-gradient(ellipse at center, rgba(12,26,12,.75) 0%, rgba(0,0,0,.92) 68%, rgba(0,0,0,.98) 100%);
       box-shadow:
         inset 0 0 0 1px rgba(57,255,90,.10),
         inset 0 0 40px rgba(57,255,90,.08),
         0 0 60px rgba(57,255,90,.08);
     }
 
-    /* CRT scanlines + subtle noise */
+    /* CRT scanlines + vignette */
     .screen::before{
       content:"";
       position:absolute; inset:-2px;
       background:
+        radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 78%),
         repeating-linear-gradient(
           to bottom,
           rgba(0,0,0,.00) 0px,
           rgba(0,0,0,.00) 2px,
           rgba(0,0,0,.14) 3px
         );
-      opacity:.45;
-      mix-blend-mode: multiply;
+      opacity:.55;
       pointer-events:none;
-    }
-    .screen::after{
-      content:"";
-      position:absolute; inset:-2px;
-      background:
-        radial-gradient(circle at 25% 20%, rgba(57,255,90,.06), transparent 45%),
-        radial-gradient(circle at 75% 70%, rgba(57,255,90,.04), transparent 55%);
-      opacity:.75;
-      pointer-events:none;
+      mix-blend-mode:multiply;
     }
 
-    /* Canvas where blocks animate */
-    canvas{position:absolute; inset:0; width:100%; height:100%;}
+    /* Canvas FX layer */
+    canvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+    }
 
-    /* Text UI */
+    /* UI layer */
     .ui{
-      position:absolute; inset:0;
+      position:absolute;
+      inset:0;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
+      gap: 14px;
       padding: 6% 8%;
-      gap: 10px;
       pointer-events:none;
+      text-align:center;
     }
 
     .subtitle{
-      margin-top: 8px;
       font-family: "VT323", monospace;
-      font-size: clamp(18px, 2.0vw, 28px);
+      font-size: clamp(18px, 2.2vw, 30px);
       letter-spacing: .08em;
-      color: rgba(57,255,90,.88);
+      color: rgba(57,255,90,.90);
       text-shadow: var(--glow);
       opacity:0;
       transform: translateY(6px);
-      transition: opacity .4s ease, transform .4s ease;
-      text-align:center;
-      line-height:1.1;
-      white-space: pre-wrap;
+      transition: opacity .45s ease, transform .45s ease;
+      line-height:1.05;
     }
 
     .login{
-      margin-top: 12px;
       display:flex;
       align-items:center;
       gap: 10px;
+      flex-wrap:wrap;
+      justify-content:center;
       opacity:0;
       transform: translateY(10px);
-      transition: opacity .45s ease, transform .45s ease;
+      transition: opacity .85s ease, transform .85s ease;
       pointer-events:auto;
+      margin-top: 2px;
     }
 
     .label{
       font-family:"VT323", monospace;
-      font-size: 28px;
+      font-size: 30px;
       color: rgba(57,255,90,.92);
       text-shadow: var(--glow);
     }
@@ -156,10 +153,14 @@
       outline:none;
       font-family:"Share Tech Mono", monospace;
       font-size: 16px;
-      letter-spacing:.12em;
+      letter-spacing:.14em;
+      text-transform: uppercase;
       box-shadow: inset 0 0 18px rgba(57,255,90,.10);
     }
-    input:focus{border-color: rgba(57,255,90,.55); box-shadow: inset 0 0 18px rgba(57,255,90,.18), 0 0 20px rgba(57,255,90,.12);}
+    input:focus{
+      border-color: rgba(57,255,90,.55);
+      box-shadow: inset 0 0 18px rgba(57,255,90,.18), 0 0 20px rgba(57,255,90,.12);
+    }
 
     button{
       padding: 10px 14px;
@@ -169,37 +170,30 @@
       color: rgba(57,255,90,.92);
       font-family:"Share Tech Mono", monospace;
       font-size: 14px;
-      letter-spacing:.14em;
+      letter-spacing: .14em;
+      text-transform: uppercase;
       cursor:pointer;
       box-shadow: 0 0 18px rgba(57,255,90,.10);
-      text-transform: uppercase;
     }
     button:hover{border-color: rgba(57,255,90,.55); box-shadow: 0 0 22px rgba(57,255,90,.16);}
     button:active{transform: translateY(1px);}
 
-    .hint{
-      position:absolute;
-      bottom: 10px;
-      left: 0; right:0;
-      text-align:center;
+    .status{
+      min-height: 18px;
       font-size: 12px;
-      opacity:.75;
       color: rgba(57,255,90,.70);
-      text-shadow: 0 0 10px rgba(57,255,90,.20);
-      padding: 0 10px;
-      pointer-events:auto;
+      text-shadow: 0 0 12px rgba(57,255,90,.12);
+      margin-top: 2px;
+      pointer-events:none;
     }
 
-    .hint a{color: rgba(57,255,90,.88); text-decoration:none; border-bottom:1px dotted rgba(57,255,90,.35);}
-    .hint a:hover{border-bottom-color: rgba(57,255,90,.65);}
-
-    /* Vimeo container (inside screen) */
+    /* Vimeo layer (inside screen) */
     .playerWrap{
       position:absolute; inset:0;
       opacity:0;
       pointer-events:none;
-      transition: opacity .55s ease;
-      background: #000;
+      transition: opacity .65s ease;
+      background:#000;
     }
     .playerWrap.on{
       opacity:1;
@@ -211,73 +205,54 @@
       border:0;
     }
 
-    /* Small “boot” messages */
+    /* tiny boot line */
     .bootline{
       position:absolute;
-      left: 6%;
-      top: 8%;
-      font-family:"Share Tech Mono", monospace;
-      font-size: 14px;
+      left: 5%;
+      top: 7%;
+      font-size: 13px;
       letter-spacing:.12em;
       color: rgba(57,255,90,.78);
       text-shadow: var(--glow);
       opacity:0;
-      transform: translateY(2px);
-      transition: opacity .3s ease;
+      transition: opacity .35s ease;
       pointer-events:none;
       white-space:pre;
     }
     .bootline.on{opacity:1;}
-
-    /* shake/jitter a hair */
-    @keyframes jitter {
-      0%,100% { transform: translate(0,0); }
-      15% { transform: translate(.3px,-.4px); }
-      35% { transform: translate(-.4px,.2px); }
-      55% { transform: translate(.5px,.3px); }
-      75% { transform: translate(-.2px,-.3px); }
-    }
-    .jitter { animation: jitter 2.6s infinite linear; }
   </style>
 </head>
 
 <body>
   <div class="stage">
-    <div class="monitor">
-      <div class="screen jitter" id="screen">
-        <canvas id="fx"></canvas>
+    <div class="screen" id="screen">
+      <canvas id="fx"></canvas>
 
-        <div class="bootline" id="bootline">>> SYSTEM ONLINE...</div>
+      <div class="bootline" id="bootline">>> LINK ESTABLISHED...</div>
 
-        <div class="ui">
-          <div class="subtitle" id="subtitle"></div>
+      <div class="ui">
+        <div class="subtitle" id="subtitle"></div>
 
-          <div class="login" id="login">
-            <div class="label">ACCESS CODE:</div>
-            <input id="code" autocomplete="off" spellcheck="false" />
-            <button id="enter">ENTER</button>
-          </div>
-
-          <div class="hint" id="hint">
-            Don’t have the code? Request access:
-            <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a><br/>
-            © descend9down — Prototype materials for private review only.
-          </div>
+        <div class="login" id="login">
+          <div class="label">ACCESS CODE:</div>
+          <input id="code" autocomplete="off" spellcheck="false" />
+          <button id="enter">ENTER</button>
         </div>
 
-        <div class="playerWrap" id="playerWrap">
-          <!-- Your Vimeo embed -->
-          <iframe
-            src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            title="Blinky DOS">
-          </iframe>
-        </div>
+        <div class="status" id="status"></div>
       </div>
 
-      <div class="monitor-frame"></div>
+      <div class="playerWrap" id="playerWrap">
+        <iframe
+          src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&player_id=0&app_id=58479"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          title="Blinky DOS">
+        </iframe>
+      </div>
     </div>
+
+    <div class="monitor"></div>
   </div>
 
 <script>
@@ -285,25 +260,31 @@
   // ====== CONFIG ======
   const WORD = "PU5C1VER5E";
   const SUBTITLE = "A Psychospiritual Journey Through the Puscifer Mythos";
-  const CORRECT_CODE = "probe";
+  const CORRECT_CODE = "PROBE";
 
-  // “Medium + ritual” timing knobs
-  const FORM_TIME_MS = 2400;        // how long the blocks take to assemble
-  const TYPE_SPEED_MS = 22;         // typing speed for subtitle
-  const AFTER_FORM_DELAY_MS = 250;  // pause after word forms
+  // ✅ Scrawl timing: “a tad slower”
+  const FORM_TIME_MS = 3200;      // was ~2400; slower without dragging
+  const AFTER_FORM_DELAY_MS = 350;
 
-  // Block/grid settings
-  const GRID = 10;                  // size of each “chunky block” in pixels (auto scaled with canvas)
-  const DENSITY = 0.62;             // how many blocks from the text mask to keep (0..1)
+  // Subtitle typing
+  const TYPE_SPEED_MS = 22;
+
+  // Slow reveal of password box
+  const LOGIN_REVEAL_DELAY_MS = 520;
+
+  // Block/grid
+  const DENSITY = 0.64;           // 0..1 block fill from text mask
+  const EDGE_PULL = 0.55;         // how “edgey” the spawn feels
 
   // ====== ELEMENTS ======
   const canvas = document.getElementById("fx");
   const ctx = canvas.getContext("2d", { alpha: true });
-  const screen = document.getElementById("screen");
+
   const subtitleEl = document.getElementById("subtitle");
   const loginEl = document.getElementById("login");
   const codeEl = document.getElementById("code");
   const enterBtn = document.getElementById("enter");
+  const statusEl = document.getElementById("status");
   const playerWrap = document.getElementById("playerWrap");
   const bootline = document.getElementById("bootline");
 
@@ -311,8 +292,9 @@
   const lerp = (a,b,t) => a + (b-a)*t;
   const easeOutCubic = t => 1 - Math.pow(1-t, 3);
   const clamp = (v,min,max) => Math.max(min, Math.min(max, v));
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
 
-  function resize() {
+  function resize(){
     const r = canvas.getBoundingClientRect();
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
     canvas.width = Math.floor(r.width * dpr);
@@ -320,12 +302,10 @@
     ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 
-  // Build a pixel mask of the word, then convert to block targets.
-  function buildTargets() {
+  function buildTargets(){
     const w = canvas.getBoundingClientRect().width;
     const h = canvas.getBoundingClientRect().height;
 
-    // Offscreen render
     const off = document.createElement("canvas");
     off.width = Math.floor(w);
     off.height = Math.floor(h);
@@ -333,139 +313,133 @@
 
     o.clearRect(0,0,off.width,off.height);
 
-    // Choose font: big, punchy, DOS-y
-    const fontSize = Math.floor(Math.min(w*0.18, 180));
+    const fontSize = Math.floor(Math.min(w*0.20, 210));
     o.font = `700 ${fontSize}px VT323, Share Tech Mono, monospace`;
     o.textAlign = "center";
     o.textBaseline = "middle";
 
-    // Subtle “dot-matrix” feel: draw twice with slight offset
+    // draw twice for a slightly “rastered terminal” vibe
     o.fillStyle = "#00ff55";
     o.globalAlpha = 1;
-    o.fillText(WORD, off.width/2, off.height/2 - off.height*0.04);
+    o.fillText(WORD, off.width/2, off.height/2 - off.height*0.03);
     o.globalAlpha = 0.55;
-    o.fillText(WORD, off.width/2 + 1, off.height/2 - off.height*0.04 + 1);
+    o.fillText(WORD, off.width/2 + 1, off.height/2 - off.height*0.03 + 1);
 
     const img = o.getImageData(0,0,off.width,off.height).data;
 
-    // Determine grid size in screen pixels
-    const cell = Math.max(6, Math.floor(Math.min(w,h) / 70)); // chunky blocks that scale
+    const cell = Math.max(7, Math.floor(Math.min(w,h) / 68)); // chunky blocks
     const targets = [];
 
     for (let y=0; y<off.height; y+=cell) {
       for (let x=0; x<off.width; x+=cell) {
-        // sample center of cell
         const sx = Math.floor(x + cell/2);
         const sy = Math.floor(y + cell/2);
         const idx = (sy*off.width + sx) * 4;
         const a = img[idx+3];
-        if (a > 18 && Math.random() < DENSITY) {
-          targets.push({ tx: x, ty: y, size: cell });
-        }
+        if (a > 18 && Math.random() < DENSITY) targets.push({ tx:x, ty:y, size:cell });
       }
     }
-    return { targets, cell };
+    return targets;
   }
 
-  // Create “centipede-ish” particles that start at edges and crawl to targets
-  function spawnParticles(targets) {
+  function spawnParticles(targets){
     const w = canvas.getBoundingClientRect().width;
     const h = canvas.getBoundingClientRect().height;
 
-    const particles = targets.map((t,i) => {
-      // pick a spawn edge
-      const edge = Math.floor(Math.random()*4);
-      let x, y;
+    const parts = targets.map((t,i) => {
+      // bias spawns to edges (centipede-ish)
+      let edge;
+      if (Math.random() < EDGE_PULL) edge = Math.floor(Math.random()*4);
+      else edge = -1;
 
-      if (edge === 0) { x = Math.random()*w; y = -20 - Math.random()*60; }       // top
-      if (edge === 1) { x = w+20 + Math.random()*60; y = Math.random()*h; }      // right
-      if (edge === 2) { x = Math.random()*w; y = h+20 + Math.random()*60; }      // bottom
-      if (edge === 3) { x = -20 - Math.random()*60; y = Math.random()*h; }       // left
+      let x,y;
+      if (edge === 0) { x = Math.random()*w; y = -30 - Math.random()*80; }
+      else if (edge === 1) { x = w+30 + Math.random()*80; y = Math.random()*h; }
+      else if (edge === 2) { x = Math.random()*w; y = h+30 + Math.random()*80; }
+      else if (edge === 3) { x = -30 - Math.random()*80; y = Math.random()*h; }
+      else { // occasional interior spawn for “swarm” energy
+        x = Math.random()*w;
+        y = Math.random()*h;
+      }
 
-      // each particle has a little “wiggle” so it crawls
       const phase = Math.random()*Math.PI*2;
-      const freq = 2 + Math.random()*2.5;
-      const amp = 6 + Math.random()*10;
-
-      // stagger arrival so it “scrawls” across
-      const delay = (i / targets.length) * 0.55; // medium ritual (0.0..0.55 of the timeline)
+      const freq = 2 + Math.random()*2.6;
+      const amp  = 7 + Math.random()*12;
 
       return {
-        x, y,
-        sx: x, sy: y,
-        tx: t.tx, ty: t.ty,
-        size: t.size,
+        x,y, sx:x, sy:y,
+        tx:t.tx, ty:t.ty,
+        size:t.size,
         phase, freq, amp,
-        delay
+        delay: 0
       };
     });
 
-    // Sort targets left-to-right to “read” like a word forming
-    particles.sort((a,b) => (a.tx - b.tx) + (a.ty - b.ty)*0.12);
-    // reassign delays after sorting for nicer writing motion
-    particles.forEach((p,i) => p.delay = (i / particles.length) * 0.55);
-    return particles;
+    // order by x for “writing” motion, then stagger delays
+    parts.sort((a,b) => (a.tx - b.tx) + (a.ty - b.ty)*0.10);
+    parts.forEach((p,i) => p.delay = (i / parts.length) * 0.58); // scrawl pass
+    return parts;
   }
 
-  function drawParticle(p, alpha) {
-    // CRT-ish glow block
+  function drawBlock(p, alpha){
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = "rgba(57,255,90,0.95)";
     ctx.shadowColor = "rgba(57,255,90,0.55)";
     ctx.shadowBlur = 10;
+    ctx.fillStyle = "rgba(57,255,90,0.95)";
     ctx.fillRect(p.x, p.y, p.size-1, p.size-1);
 
-    // inner darker to give “chunk” depth
     ctx.shadowBlur = 0;
     ctx.fillStyle = "rgba(0,0,0,0.25)";
     ctx.fillRect(p.x+1, p.y+1, Math.max(1,p.size-4), Math.max(1,p.size-4));
   }
 
-  async function typeText(el, text) {
+  async function typeText(el, text){
     el.textContent = "";
     el.style.opacity = 1;
     el.style.transform = "translateY(0px)";
-    for (let i=0; i<text.length; i++) {
+    for (let i=0; i<text.length; i++){
       el.textContent += text[i];
-      await new Promise(r => setTimeout(r, TYPE_SPEED_MS));
+      await sleep(TYPE_SPEED_MS);
     }
   }
 
-  function showLogin() {
-    loginEl.style.opacity = 1;
-    loginEl.style.transform = "translateY(0)";
-    codeEl.focus();
+  function revealLogin(){
+    setTimeout(() => {
+      loginEl.style.opacity = 1;
+      loginEl.style.transform = "translateY(0)";
+      codeEl.focus();
+    }, LOGIN_REVEAL_DELAY_MS);
   }
 
-  function bootLineOn() {
-    bootline.classList.add("on");
+  function setStatus(msg){
+    statusEl.textContent = msg || "";
   }
 
-  function toVimeo() {
-    // small “access granted” moment without a whole new page
+  function unlock(){
     subtitleEl.textContent = "ACCESS GRANTED...";
+    setStatus("");
+    // fade to Vimeo inside same screen
     playerWrap.classList.add("on");
   }
 
-  function checkCode() {
-    const v = (codeEl.value || "").trim().toLowerCase();
-    if (v === CORRECT_CODE) {
-      toVimeo();
+  function checkCode(){
+    const v = (codeEl.value || "").trim().toUpperCase();
+    if (v === CORRECT_CODE){
+      unlock();
     } else {
-      // small error blink
+      setStatus(">> ACCESS DENIED");
       codeEl.value = "";
-      subtitleEl.textContent = "ACCESS DENIED";
-      setTimeout(() => subtitleEl.textContent = SUBTITLE, 900);
       codeEl.focus();
+      setTimeout(() => setStatus(""), 900);
     }
   }
 
-  // ====== MAIN BOOT ======
+  // ====== MAIN ======
   let particles = [];
   let start = 0;
   let formed = false;
 
-  function animate(ts) {
+  function animate(ts){
     if (!start) start = ts;
     const t = ts - start;
 
@@ -474,20 +448,19 @@
 
     ctx.clearRect(0,0,w,h);
 
-    // faint background glow sweep
+    // faint base glow
     ctx.globalAlpha = 0.10;
-    ctx.fillStyle = "rgba(57,255,90,0.12)";
+    ctx.fillStyle = "rgba(57,255,90,0.10)";
     ctx.fillRect(0,0,w,h);
 
-    // animate particles to targets
     const total = FORM_TIME_MS;
-    let doneCount = 0;
+    let done = 0;
 
     particles.forEach(p => {
       const local = clamp((t/total - p.delay) / (1 - p.delay), 0, 1);
       const e = easeOutCubic(local);
 
-      // centipede-ish wiggle while traveling
+      // “centipede scrawl” wiggle while traveling
       const wig = (1 - e);
       const ox = Math.sin(p.phase + local * Math.PI * p.freq) * p.amp * wig;
       const oy = Math.cos(p.phase + local * Math.PI * p.freq) * (p.amp*0.65) * wig;
@@ -495,29 +468,35 @@
       p.x = lerp(p.sx, p.tx, e) + ox;
       p.y = lerp(p.sy, p.ty, e) + oy;
 
-      const a = 0.35 + 0.65 * e;
-      drawParticle(p, a);
+      drawBlock(p, 0.35 + 0.65 * e);
 
-      if (local >= 1) doneCount++;
+      if (local >= 1) done++;
     });
 
-    if (!formed && doneCount === particles.length && t > total) {
+    // occasional scan flash
+    ctx.globalAlpha = 0.08;
+    ctx.fillStyle = "rgba(57,255,90,0.25)";
+    const yy = (t * 0.05) % h;
+    ctx.fillRect(0, yy, w, 2);
+
+    if (!formed && done === particles.length && t > total){
       formed = true;
-      // lock final crisp pass
+
+      // lock final crisp frame
       ctx.clearRect(0,0,w,h);
-      particles.forEach(p => { p.x = p.tx; p.y = p.ty; drawParticle(p, 1); });
+      particles.forEach(p => { p.x=p.tx; p.y=p.ty; drawBlock(p, 1); });
 
-      setTimeout(async () => {
+      (async () => {
+        await sleep(AFTER_FORM_DELAY_MS);
         await typeText(subtitleEl, SUBTITLE);
-        showLogin();
-      }, AFTER_FORM_DELAY_MS);
+        revealLogin();
+      })();
+
+      requestAnimationFrame(flickerLoop);
+      return;
     }
 
-    if (!formed) requestAnimationFrame(animate);
-    else {
-      // keep a subtle flicker draw in the background after form
-      requestAnimationFrame(flickerLoop);
-    }
+    requestAnimationFrame(animate);
   }
 
   function flickerLoop(ts){
@@ -525,16 +504,11 @@
     const h = canvas.getBoundingClientRect().height;
     ctx.clearRect(0,0,w,h);
 
-    // mild random flicker on blocks
     const jitter = (Math.random() * 0.08);
-    particles.forEach(p => {
-      const a = 0.92 + jitter;
-      drawParticle(p, a);
-    });
+    particles.forEach(p => drawBlock(p, 0.92 + jitter));
 
-    // tiny scan flash
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle = "rgba(57,255,90,0.25)";
+    ctx.globalAlpha = 0.07;
+    ctx.fillStyle = "rgba(57,255,90,0.22)";
     const y = (ts*0.06) % h;
     ctx.fillRect(0, y, w, 2);
 
@@ -543,32 +517,28 @@
 
   function init(){
     resize();
-    const { targets } = buildTargets();
-    particles = spawnParticles(targets);
-
-    // Boot line appears quickly
-    setTimeout(bootLineOn, 280);
-
-    // Begin animation
-    requestAnimationFrame(animate);
-  }
-
-  // events
-  window.addEventListener("resize", () => {
-    // re-init on resize to keep it tight in monitor
-    start = 0; formed = false;
     subtitleEl.style.opacity = 0;
     subtitleEl.textContent = "";
     loginEl.style.opacity = 0;
     loginEl.style.transform = "translateY(10px)";
+    setStatus("");
     playerWrap.classList.remove("on");
-    init();
-  });
+    codeEl.value = "";
+
+    const targets = buildTargets();
+    particles = spawnParticles(targets);
+
+    setTimeout(() => bootline.classList.add("on"), 260);
+
+    start = 0;
+    formed = false;
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener("resize", init);
 
   enterBtn.addEventListener("click", checkCode);
-  codeEl.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") checkCode();
-  });
+  codeEl.addEventListener("keydown", (e) => { if (e.key === "Enter") checkCode(); });
 
   init();
 })();
