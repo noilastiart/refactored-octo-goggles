@@ -3,38 +3,56 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E — Restricted</title>
+  <title>PU5C1VER5E</title>
+
+  <!-- DOS-ish font close to retro terminals -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
   <style>
     :root{
-      /* ✅ TUNE THESE 4 NUMBERS ONCE to align to the Vimeo screen area */
-      --screen-left: 12.5%;
-      --screen-top: 14.0%;
-      --screen-w: 75.0%;
-      --screen-h: 71.5%;
+      /* ====== TWEAK THESE 4 VALUES to align the “screen window” perfectly inside your monitor-frame.png ====== */
+      --screen-left: 17%;
+      --screen-top: 15%;
+      --screen-w: 66%;
+      --screen-h: 70%;
+
       --screen-radius: 18px;
 
-      --green: #39ff5a;
+      --green: rgba(120, 255, 160, .95);
+      --green-dim: rgba(120, 255, 160, .55);
+      --glass: rgba(0,0,0,.35);
     }
 
     *{ box-sizing:border-box; }
-    html,body{ height:100%; margin:0; background:#000; }
-
-    /* Page backdrop */
+    html, body{ height:100%; }
     body{
+      margin:0;
+      background: radial-gradient(circle at 50% 40%, #0c120d 0%, #050705 40%, #000 100%);
       display:grid;
       place-items:center;
-      background:
-        radial-gradient(ellipse at center, rgba(57,255,90,.08) 0%, rgba(0,0,0,1) 58%);
       overflow:hidden;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      color: var(--green);
+      font-family: "VT323", monospace;
+      letter-spacing: .5px;
     }
 
-    /* Whole monitor area */
+    /* Stage holds the monitor+screen */
     .stage{
       position:relative;
-      width:min(92vw, 980px);
-      aspect-ratio: 1 / 1;          /* your monitor is close to square */
-      filter: drop-shadow(0 30px 55px rgba(0,0,0,.65));
+      width:min(980px, 92vw);
+      aspect-ratio: 4 / 3;
+      filter: drop-shadow(0 35px 70px rgba(0,0,0,.65));
+    }
+
+    /* Monitor frame image */
+    .monitor{
+      position:absolute;
+      inset:0;
+      background: url("./monitor-frame.png") center/contain no-repeat;
+      pointer-events:none;
+      z-index: 30;
     }
 
     /* Screen window inside monitor */
@@ -46,12 +64,14 @@
       height: var(--screen-h);
       border-radius: var(--screen-radius);
       overflow:hidden;
+
       background: radial-gradient(ellipse at center, rgba(12,26,12,.75) 0%, rgba(0,0,0,.92) 68%, rgba(0,0,0,.98) 100%);
       box-shadow:
-        inset 0 0 0 1px rgba(57,255,90,.10),
-        inset 0 0 40px rgba(57,255,90,.08),
-        0 0 60px rgba(57,255,90,.08);
-      z-index: 2; /* below monitor frame (which is z=3) */
+        inset 0 0 0 1px rgba(120,255,160,.10),
+        inset 0 0 50px rgba(120,255,160,.06),
+        0 0 90px rgba(120,255,160,.08);
+
+      z-index: 10;
     }
 
     /* CRT scanlines + vignette */
@@ -69,22 +89,24 @@
       opacity:.55;
       pointer-events:none;
       mix-blend-mode:multiply;
-      z-index: 50;
+      z-index: 25;
     }
 
-    /* Screen content container */
-    .screen-inner{
-      position:absolute;
-      inset:0;
-      display:grid;
-      place-items:center;
+    /* Subtle screen “bloom” */
+    .screen::after{
+      content:"";
+      position:absolute; inset:-40px;
+      background: radial-gradient(circle at 50% 45%, rgba(120,255,160,.08), transparent 55%);
+      pointer-events:none;
+      z-index: 5;
     }
 
-    /* Your intro art stack (bg + ufo + beam frames) */
+    /* ====== INTRO LAYERS ====== */
     .intro{
       position:absolute;
       inset:0;
       display:block;
+      z-index: 2;
     }
 
     .intro-layer{
@@ -93,218 +115,212 @@
       width:100%;
       height:100%;
       object-fit:cover;
-      image-rendering: auto;
-      user-select:none;
-      pointer-events:none;
+      opacity:1;
+      transform: translateZ(0);
+      z-index: 2;
+      filter: contrast(1.05) brightness(.98);
     }
 
-    /* UFO float */
     .ufo{
       position:absolute;
-      left:50%;
-      top:44%;
-      width:min(46%, 360px);
-      transform:translate(-50%,-50%);
-      opacity:1;
-      animation: ufo-float 3.2s ease-in-out infinite;
-      filter: drop-shadow(0 0 12px rgba(57,255,90,.25));
+      left: 50%;
+      top: 41%;
+      width: 48%;
+      max-width: 360px;
+      transform: translate(-50%, -50%);
+      opacity: .92;
+      z-index: 4;
+      animation: hover 1.8s ease-in-out infinite;
+      filter: drop-shadow(0 0 12px rgba(120,255,160,.25));
+      pointer-events:none;
     }
-    @keyframes ufo-float{
-      0%,100% { transform:translate(-50%,-52%); }
-      50%     { transform:translate(-50%,-46%); }
+    @keyframes hover{
+      0%,100%{ transform: translate(-50%, -50%) translateY(0px); }
+      50%{ transform: translate(-50%, -50%) translateY(-8px); }
     }
 
-    /* Beam frames (8 PNG layers), initially hidden */
+    /* ====== BEAM FRAMES ====== */
     .beam{
       position:absolute;
-      left:50%;
-      top:52%;
-      width:min(56%, 430px);
-      transform:translate(-50%,-50%);
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
       opacity:0;
-      filter: drop-shadow(0 0 10px rgba(57,255,90,.20));
+      z-index: 6;
+      pointer-events:none;
+      transition: opacity 120ms linear;
+      filter: brightness(1.05);
     }
 
-    /* Fade intro out when we enter access mode */
-    .intro.fade-out{
-      animation: fadeOut .6s ease forwards;
-    }
-    @keyframes fadeOut{ to { opacity:0; } }
-
-    /* Access UI */
+    /* ====== ACCESS UI ====== */
     .access{
       position:absolute;
       inset:0;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:14px;
+      display:grid;
+      place-items:center;
+      z-index: 12;
       opacity:0;
-      transform: translateY(6px);
       pointer-events:none;
+      transition: opacity 450ms ease;
     }
     .access.show{
       opacity:1;
-      transform:none;
-      transition: opacity .55s ease, transform .55s ease;
       pointer-events:auto;
     }
 
+    .access-panel{
+      width:min(520px, 88%);
+      padding: 18px 18px 16px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(120,255,160,.22);
+      border-radius: 14px;
+      box-shadow:
+        inset 0 0 0 1px rgba(120,255,160,.08),
+        0 0 40px rgba(120,255,160,.10);
+      backdrop-filter: blur(2px);
+    }
+
     .line{
-      color: rgba(57,255,90,.9);
-      font-size: clamp(12px, 1.6vw, 16px);
-      letter-spacing: .06em;
-      text-shadow: 0 0 10px rgba(57,255,90,.25);
+      font-size: 26px;
+      color: var(--green);
+      text-shadow: 0 0 10px rgba(120,255,160,.15);
+      margin-bottom: 10px;
     }
 
     .row{
       display:flex;
+      gap: 10px;
       align-items:center;
-      gap:10px;
       flex-wrap:wrap;
-      justify-content:center;
-      margin-top:4px;
-    }
-
-    .label{
-      color: rgba(57,255,90,.85);
-      font-size: clamp(12px, 1.6vw, 16px);
-      letter-spacing:.08em;
     }
 
     .input{
+      flex: 1 1 220px;
       position:relative;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      padding:10px 12px;
-      border-radius:12px;
-      background: rgba(0,0,0,.55);
-      border: 1px solid rgba(57,255,90,.22);
-      box-shadow: inset 0 0 18px rgba(57,255,90,.10);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(120,255,160,.22);
+      background: rgba(0,0,0,.30);
+      box-shadow: inset 0 0 18px rgba(0,0,0,.35);
     }
 
-    input{
-      width: 180px;
-      max-width: 52vw;
-      background: transparent;
-      border: 0;
-      outline: none;
-      color: rgba(57,255,90,.95);
-      font-size: 16px;
-      letter-spacing:.12em;
+    input#code{
+      width:100%;
+      border:0;
+      outline:0;
+      background:transparent;
+      color: var(--green);
+      font-family: "VT323", monospace;
+      font-size: 28px;
+      letter-spacing: 2px;
       text-transform: uppercase;
-      font-family: inherit;
+      padding-right: 14px;
     }
 
-    /* fake cursor glow */
     .cursor{
-      width:10px;
-      height:18px;
-      background: rgba(57,255,90,.85);
-      box-shadow: 0 0 10px rgba(57,255,90,.35);
-      animation: blink 1.05s steps(2,end) infinite;
+      position:absolute;
+      right: 12px;
+      top: 50%;
+      width: 10px;
+      height: 24px;
+      transform: translateY(-50%);
+      background: rgba(120,255,160,.9);
+      animation: blink 0.9s steps(2) infinite;
+      border-radius: 2px;
     }
-    @keyframes blink{ 50% { opacity:0; } }
+    @keyframes blink{ 50%{ opacity:0; } }
 
-    button{
-      background: rgba(57,255,90,.12);
-      border: 1px solid rgba(57,255,90,.35);
-      color: rgba(57,255,90,.95);
+    #enterBtn{
+      flex: 0 0 auto;
+      font-family: "VT323", monospace;
+      font-size: 24px;
       padding: 10px 14px;
       border-radius: 12px;
-      font-family: inherit;
-      letter-spacing:.10em;
+      border: 1px solid rgba(120,255,160,.28);
+      background: rgba(0,0,0,.28);
+      color: var(--green);
       cursor:pointer;
-      box-shadow: 0 0 18px rgba(57,255,90,.10);
+      transition: transform .08s ease, background .2s ease;
     }
-    button:hover{ background: rgba(57,255,90,.18); }
+    #enterBtn:hover{ background: rgba(0,0,0,.40); }
+    #enterBtn:active{ transform: translateY(1px); }
 
     .hint{
-      position:absolute;
-      left:14px;
-      top:12px;
-      font-size:12px;
-      color: rgba(57,255,90,.75);
-      letter-spacing:.10em;
-      opacity:.85;
+      margin-top: 10px;
+      font-size: 18px;
+      color: rgba(120,255,160,.55);
     }
 
-    .footer{
-      position:absolute;
-      left:0; right:0;
-      bottom:10px;
-      padding: 0 14px;
-      text-align:center;
-      font-size: 11px;
-      color: rgba(57,255,90,.55);
-      line-height:1.35;
-      text-shadow: 0 0 8px rgba(57,255,90,.10);
+    .shake{
+      animation: shake .22s linear 2;
     }
-    .footer a{ color: rgba(57,255,90,.85); text-decoration:none; }
-    .footer a:hover{ text-decoration:underline; }
+    @keyframes shake{
+      0%{ transform: translateX(0); }
+      25%{ transform: translateX(-6px); }
+      50%{ transform: translateX(6px); }
+      75%{ transform: translateX(-4px); }
+      100%{ transform: translateX(0); }
+    }
 
-    /* Vimeo container (shown after correct code) */
+    /* ====== VIMEO ====== */
     .vimeo{
       position:absolute;
       inset:0;
-      display:none;
+      z-index: 20;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 350ms ease;
+      background: rgba(0,0,0,.15);
     }
-    .vimeo.show{ display:block; }
+    .vimeo.show{
+      opacity:1;
+      pointer-events:auto;
+    }
     .vimeo iframe{
+      position:absolute;
+      inset:0;
       width:100%;
       height:100%;
       border:0;
-      border-radius: var(--screen-radius);
     }
 
-    /* Monitor frame always on top */
-    .monitor{
-      position:absolute;
-      inset:0;
-      background: url("./monitor-frame.png") center/contain no-repeat;
-      pointer-events:none;
-      z-index: 3;
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .ufo{ animation:none; }
-      .cursor{ animation:none; opacity:1; }
+    /* Small screens: nudge stage down a hair */
+    @media (max-width: 560px){
+      .stage{ width: 96vw; }
+      .line{ font-size: 22px; }
+      input#code{ font-size: 24px; }
     }
   </style>
 </head>
 
 <body>
   <div class="stage">
-    <div class="screen">
-      <div class="screen-inner">
+    <div class="screen" id="screen">
 
-       
+      <!-- INTRO -->
+      <div class="intro" id="intro">
+        <img class="intro-layer" src="./intro-bg.png" alt="" />
+        <img class="ufo" id="ufo" src="./ufo.png" alt="" />
 
-        <!-- INTRO (your art) -->
-        <div class="intro" id="intro">
-          <img class="intro-layer" src="./intro-bg.png" alt="" />
-          <img class="ufo" src="./ufo.png" alt="" />
+        <!-- Beam frames (8) -->
+        <img class="beam" src="./beam-01.png" alt="" />
+        <img class="beam" src="./beam-02.png" alt="" />
+        <img class="beam" src="./beam-03.png" alt="" />
+        <img class="beam" src="./beam-04.png" alt="" />
+        <img class="beam" src="./beam-05.png" alt="" />
+        <img class="beam" src="./beam-06.png" alt="" />
+        <img class="beam" src="./beam-07.png" alt="" />
+        <img class="beam" src="./beam-08.png" alt="" />
 
-          <!-- Beam frames (8) -->
-          <img class="beam" id="beam01" src="./beam-01.png" />
-<img class="beam" id="beam02" src="./beam-02.png" />
-<img class="beam" id="beam03" src="./beam-03.png" />
-<img class="beam" id="beam04" src="./beam-04.png" />
-<img class="beam" id="beam05" src="./beam-05.png" />
-<img class="beam" id="beam06" src="./beam-06.png" />
-<img class="beam" id="beam07" src="./beam-07.png" />
-<img class="beam" id="beam08" src="./beam-08.png" />
+        <!-- Optional “all beam” flashes -->
+        <img class="beam" id="beamAll" src="./beamall.png" alt="" />
+        <img class="beam" id="beamAllGlow" src="./beamall-glow.png" alt="" />
+      </div>
 
-<!-- Optional finale layers -->
-<img class="beam beam-final" id="beamAll" src="./beamall.png" />
-<img class="beam beam-glow" id="beamGlow" src="./beamall-glow.png" />
-<div>
-
-        <!-- ACCESS UI -->
-        <div class="access" id="access">
+      <!-- ACCESS UI -->
+      <div class="access" id="access">
+        <div class="access-panel" id="accessPanel">
           <div class="line">ACCESS CODE:</div>
           <div class="row">
             <div class="input">
@@ -313,124 +329,141 @@
             </div>
             <button id="enterBtn">ENTER</button>
           </div>
+          <div class="hint" id="hint">[ Clearance: Restricted ]</div>
         </div>
-
-        <!-- VIMEO -->
-        <div class="vimeo" id="vimeo">
-          <!-- Your embed (kept exactly, just wrapped) -->
-          <iframe
-            src="https://player.vimeo.com/video/1128635365?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479"
-            allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
-            referrerpolicy="strict-origin-when-cross-origin"
-            title="Blinky DOS">
-          </iframe>
-        </div>
-
-        <div class="footer">
-          Don’t have the code? Request access: <a href="mailto:descend9down@gmail.com">descend9down@gmail.com</a><br>
-          © descend9down — Prototype materials for private review only.
-        </div>
-
       </div>
+
+      <!-- VIMEO -->
+      <div class="vimeo" id="vimeo">
+        <!-- Your Vimeo embed (responsive, fills screen window) -->
+        <iframe
+          src="https://player.vimeo.com/video/1128635365?badge=0&autopause=0&autoplay=1&muted=0&player_id=0&app_id=58479"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          title="Blinky DOS">
+        </iframe>
+      </div>
+
     </div>
 
     <div class="monitor"></div>
   </div>
 
   <script>
-    const PASS = "PROBE";
+    // ========= TIMING (tweak if you want) =========
+    const INTRO_HOLD_MS   = 1400;  // “few beats” with intro + hovering UFO
+    const BEAM_STEP_MS    = 170;   // how fast beam frames step (lower = faster)
+    const AFTER_BEAM_MS   = 250;   // tiny pause after last beam frame
+    const FLASH_ALL_MS    = 160;   // beamall flash duration
+    const FLASH_GLOW_MS   = 220;   // glow flash duration
+    const FADE_OUT_MS     = 520;   // fade intro away into access UI
 
-    const intro = document.getElementById("intro");
+    const CORRECT_CODE = "PROBE";
+
+    const intro  = document.getElementById("intro");
+    const ufo    = document.getElementById("ufo");
+    const beams  = Array.from(intro.querySelectorAll(".beam"))
+                        // first 8 are the step frames; last two are beamAll + glow
+                        .filter((img) => img.id !== "beamAll" && img.id !== "beamAllGlow");
+
+    const beamAll = document.getElementById("beamAll");
+    const beamAllGlow = document.getElementById("beamAllGlow");
+
     const access = document.getElementById("access");
+    const codeInput = document.getElementById("code");
+    const enterBtn = document.getElementById("enterBtn");
+    const accessPanel = document.getElementById("accessPanel");
+    const hint = document.getElementById("hint");
+
     const vimeo = document.getElementById("vimeo");
-    const input = document.getElementById("code");
-    const btn = document.getElementById("enterBtn");
 
-    const beams = [
-      document.getElementById("beam1"),
-      document.getElementById("beam2"),
-      document.getElementById("beam3"),
-      document.getElementById("beam4"),
-      document.getElementById("beam5"),
-      document.getElementById("beam6"),
-      document.getElementById("beam7"),
-      document.getElementById("beam8"),
-    ];
-
-    // --- TIMING (edit these to taste) ---
-    const HOLD_INTRO_MS = 1200;     // “few beats” on the first image
-    const BEAM_STEP_MS  = 140;      // speed of 8-layer beam “drop”
-    const AFTER_BEAM_MS = 250;      // beat after beam completes
-    // ------------------------------------
+    function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
     function hideAllBeams(){
       beams.forEach(b => b.style.opacity = 0);
+      beamAll.style.opacity = 0;
+      beamAllGlow.style.opacity = 0;
     }
 
-    function playBeamSequence(){
-      return new Promise((resolve) => {
-        hideAllBeams();
-        let i = 0;
-        const tick = () => {
-          // show current, hide previous (clean stepping)
-          if (i > 0) beams[i-1].style.opacity = 0;
-          if (i < beams.length) {
-            beams[i].style.opacity = 1;
-            i++;
-            setTimeout(tick, BEAM_STEP_MS);
-          } else {
-            // hide last beam after a beat
-            setTimeout(() => {
-              hideAllBeams();
-              resolve();
-            }, AFTER_BEAM_MS);
-          }
-        };
-        tick();
-      });
-    }
+    async function playBeamSequenceAccumulate(){
+      // Shows beam-01, then beam-02 (hiding previous), etc.
+      hideAllBeams();
 
-    async function boot(){
-      // 1) hold on intro (UFO hovering)
-      await new Promise(r => setTimeout(r, HOLD_INTRO_MS));
-
-      // 2) beam drops in 8 steps
-      await playBeamSequence();
-
-      // 3) fade intro and show access UI
-      intro.classList.add("fade-out");
-      setTimeout(() => {
-        access.classList.add("show");
-        input.focus();
-      }, 450);
-    }
-
-    function enter(){
-      const val = (input.value || "").trim().toUpperCase();
-      if (val !== PASS){
-        input.value = "";
-        input.placeholder = "NOPE";
-        setTimeout(() => (input.placeholder = ""), 700);
-        input.focus();
-        return;
+      for (let i = 0; i < beams.length; i++){
+        if (i > 0) beams[i-1].style.opacity = 0;
+        beams[i].style.opacity = 1;
+        await sleep(BEAM_STEP_MS);
       }
 
-      // Show Vimeo inside the SAME screen window
-      access.classList.remove("show");
-      vimeo.classList.add("show");
+      await sleep(AFTER_BEAM_MS);
 
-      // Optional: autoplay (Vimeo often requires user gesture; button click counts)
-      // If you want it, add "&autoplay=1" to the iframe src.
+      // quick “all beam” flash + glow
+      beams[beams.length - 1].style.opacity = 0;
+      beamAll.style.opacity = 1;
+      await sleep(FLASH_ALL_MS);
+      beamAll.style.opacity = 0;
+      beamAllGlow.style.opacity = 1;
+      await sleep(FLASH_GLOW_MS);
+      beamAllGlow.style.opacity = 0;
     }
 
-    btn.addEventListener("click", enter);
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") enter();
+    async function transitionToAccess(){
+      // Fade intro layers out, then show access
+      intro.style.transition = `opacity ${FADE_OUT_MS}ms ease`;
+      intro.style.opacity = 0;
+
+      await sleep(Math.max(200, FADE_OUT_MS - 120));
+      access.classList.add("show");
+      codeInput.focus();
+    }
+
+    function showVimeo(){
+      access.classList.remove("show");
+      vimeo.classList.add("show");
+    }
+
+    function wrongCode(){
+      hint.textContent = "[ ACCESS DENIED ]";
+      accessPanel.classList.remove("shake");
+      // restart the shake animation
+      void accessPanel.offsetWidth;
+      accessPanel.classList.add("shake");
+
+      setTimeout(() => { hint.textContent = "[ Clearance: Restricted ]"; }, 900);
+      codeInput.select();
+    }
+
+    function checkCode(){
+      const value = (codeInput.value || "").trim().toUpperCase();
+      if (value === CORRECT_CODE){
+        showVimeo();
+      } else {
+        wrongCode();
+      }
+    }
+
+    enterBtn.addEventListener("click", checkCode);
+    codeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkCode();
     });
 
-    // Start
-    hideAllBeams();
-    boot();
+    // ========= MAIN SEQUENCE =========
+    (async function boot(){
+      // Make sure everything starts clean
+      intro.style.opacity = 1;
+      access.classList.remove("show");
+      vimeo.classList.remove("show");
+      hideAllBeams();
+
+      // Hold on the intro (your image) with UFO hover
+      await sleep(INTRO_HOLD_MS);
+
+      // Beam animation
+      await playBeamSequenceAccumulate();
+
+      // Transition to access box
+      await transitionToAccess();
+    })();
   </script>
 </body>
 </html>
