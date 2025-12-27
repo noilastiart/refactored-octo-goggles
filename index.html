@@ -53,14 +53,39 @@
       /* TEMP: visible outline so you can see what we’re aligning */
       outline: 1px solid rgba(57,255,90,.25);
     }
+    .ufo{
+  position:absolute;
+  left:50%;
+  top:28%;
+  width:38%;
+  transform:translate(-50%, 0);
+  opacity:.95;
+  pointer-events:none;
+
+  animation:ufoHover 4.5s ease-in-out infinite;
+  filter:
+    drop-shadow(0 0 12px rgba(90,255,140,.25))
+    drop-shadow(0 0 28px rgba(90,255,140,.15));
+}
+
+@keyframes ufoHover{
+  0%   { transform: translate(-50%, 0); }
+  50%  { transform: translate(-50%, -8px); }
+  100% { transform: translate(-50%, 0); }
+}
+
+}
   </style>
 </head>
 
 <body>
   <div class="stage">
-    <img class="intro-bg" src="./intro-bg.png" alt="" />
-    <div class="screen" id="screen"></div>
+  <img class="intro-bg" src="./intro-bg.png" alt="" />
+
+  <div class="screen" id="screen">
+    <img class="ufo" src="./ufo.png" alt="" />
   </div>
+</div>
 </body>
 </html>
 
