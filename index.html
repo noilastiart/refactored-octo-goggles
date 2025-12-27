@@ -3,31 +3,39 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PU5C1VER5E</title>
+  <title>PUSC1VER5E</title>
   <style>
     :root{
-      /* These define where the SCREEN area sits on top of intro-bg.png.
-         We’ll tune these once, then everything (UFO, beams, Vimeo) lines up. */
-      --screen-left: 18%;
-      --screen-top: 21%;
-      --screen-w: 64%;
-      --screen-h: 60%;
+      /* ====== SCREEN WINDOW TUNING ======
+         These are the ONLY numbers you tweak to align the “live screen”
+         with the monitor glass area in your intro-bg.png.
+      */
+      --screen-left: 16.5%;
+      --screen-top:  14.5%;
+      --screen-w:    67%;
+      --screen-h:    74%;
+      --screen-radius: 18px;
     }
 
-    html,body{height:100%;}
-    body{
+    html,body{
+      height:100%;
       margin:0;
-      display:grid;
-      place-items:center;
       background:#000;
+      overflow:hidden;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    /* Center the whole composition on the page */
     .stage{
       position:relative;
-      width:min(900px, 92vw);
-      aspect-ratio: 1 / 1; /* your intro image is basically square */
+      width:min(1100px, 92vw);
+      aspect-ratio: 1 / 1; /* your intro bg is basically square */
+      margin: 0 auto;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
+    /* Your single “all-in-one” background art */
     .intro-bg{
       position:absolute;
       inset:0;
@@ -35,56 +43,87 @@
       height:100%;
       object-fit:contain;
       display:block;
-      filter: drop-shadow(0 30px 55px rgba(0,0,0,.65));
+      filter: drop-shadow(0 30px 55px rgba(0,0,0,.70));
       user-select:none;
       -webkit-user-drag:none;
       pointer-events:none;
     }
 
-    /* This is the invisible “screen window” we’ll use for placing stuff */
+    /* Invisible screen window used to place UFO (and later beams + access UI) */
     .screen{
       position:absolute;
-      left:var(--screen-left);
-      top:var(--screen-top);
-      width:var(--screen-w);
+      left: var(--screen-left);
+      top:  var(--screen-top);
+      width: var(--screen-w);
       height:var(--screen-h);
-      border-radius:10px;
+      border-radius: var(--screen-radius);
       overflow:hidden;
-      /* TEMP: visible outline so you can see what we’re aligning */
+
+      /* TEMP outline so you can see alignment. Remove later. */
       outline: 1px solid rgba(57,255,90,.25);
     }
-    .ufo{
-  position:absolute;
-  left:50%;
-  top:30%;
 
-  width:300px;            /* <-- THIS is the key change */
-  max-width:45%;          /* safety on small screens */
+    /* Subtle CRT vibe over the “screen” area only */
+    .screen::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      pointer-events:none;
+      opacity:.45;
+      background:
+        radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,.55) 78%),
+        repeating-linear-gradient(
+          to bottom,
+          rgba(0,0,0,.00) 0px,
+          rgba(0,0,0,.00) 2px,
+          rgba(0,0,0,.14) 3px
+        );
+      mix-blend-mode:multiply;
+    }
 
-  transform:translate(-50%, 0);
-  opacity:.95;
-  pointer-events:none;
+    /* ===== UFO ===== */
+    .screen .ufo{
+      position:absolute;
+      left:50%;
+      top:31%;
 
-  animation:ufoHover 4.5s ease-in-out infinite;
-  filter:
-    drop-shadow(0 0 14px rgba(90,255,140,.35))
-    drop-shadow(0 0 36px rgba(90,255,140,.18));
-}
+      /* BIG by default; will still scale down on smaller screens */
+      width:340px;
+      max-width:58%;
 
-}
+      transform:translate(-50%, 0);
+      opacity:.95;
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
 
-}
+      animation:ufoHover 4.5s ease-in-out infinite;
+
+      filter:
+        drop-shadow(0 0 14px rgba(90,255,140,.35))
+        drop-shadow(0 0 36px rgba(90,255,140,.18));
+    }
+
+    @keyframes ufoHover{
+      0%   { transform: translate(-50%, 0); }
+      50%  { transform: translate(-50%, -10px); }
+      100% { transform: translate(-50%, 0); }
+    }
+
+    /* If you want the outline hidden already, set this to none */
+    .screen.no-outline{ outline:none; }
   </style>
 </head>
 
 <body>
   <div class="stage">
-  <img class="intro-bg" src="./intro-bg.png" alt="" />
+    <!-- Your combined monitor/title/tag art -->
+    <img class="intro-bg" src="./intro-bg.png" alt="" />
 
-  <div class="screen" id="screen">
-    <img class="ufo" src="./ufo.png" alt="" />
+    <!-- This is the “screen window” where we place interactive/animated elements -->
+    <div class="screen" id="screen">
+      <img class="ufo" src="./ufo.png" alt="" />
+    </div>
   </div>
-</div>
 </body>
 </html>
-
