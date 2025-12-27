@@ -56,22 +56,21 @@
     .ufo{
   position:absolute;
   left:50%;
-  top:28%;
-  width:38%;
+  top:30%;
+
+  width:260px;            /* <-- THIS is the key change */
+  max-width:45%;          /* safety on small screens */
+
   transform:translate(-50%, 0);
   opacity:.95;
   pointer-events:none;
 
   animation:ufoHover 4.5s ease-in-out infinite;
   filter:
-    drop-shadow(0 0 12px rgba(90,255,140,.25))
-    drop-shadow(0 0 28px rgba(90,255,140,.15));
+    drop-shadow(0 0 14px rgba(90,255,140,.35))
+    drop-shadow(0 0 36px rgba(90,255,140,.18));
 }
 
-@keyframes ufoHover{
-  0%   { transform: translate(-50%, 0); }
-  50%  { transform: translate(-50%, -8px); }
-  100% { transform: translate(-50%, 0); }
 }
 
 }
