@@ -83,21 +83,19 @@
 
     /* ===== UFO ===== */
     .screen .ufo{
-      position:absolute;
-      left:50%;
-      top:31%;
+     .screen .ufo{
+  position:absolute;
+  left:50%;
+  top:31%;
 
-      /* BIG by default; will still scale down on smaller screens */
-      width:340px;
-      max-width:58%;
+  width:70%;
+  max-width:none;
 
-      transform:translate(-50%, 0);
-      opacity:.95;
-      pointer-events:none;
-      user-select:none;
-      -webkit-user-drag:none;
+  transform:translate(-50%, 0);
+  opacity:.95;
+  animation:ufoHover 4.5s ease-in-out infinite;
+}
 
-      animation:ufoHover 4.5s ease-in-out infinite;
 
       filter:
         drop-shadow(0 0 14px rgba(90,255,140,.35))
