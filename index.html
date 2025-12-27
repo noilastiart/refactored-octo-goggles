@@ -82,17 +82,35 @@
     }
 
     /* ===== UFO ===== */
-     .screen .ufo{
+     .ufo{
   position:absolute;
   left:50%;
-  top:31%;
+  top:28%;
 
-  width:420px;
-  max-width:none;
+  /* SIZE: increase this */
+  width:60%;
+  height:auto;
 
-  transform:translate(-50%, 0);
+  /* center it */
+  transform: translate(-50%, 0);
+
   opacity:.95;
-  animation:ufoHover 4.5s ease-in-out infinite;
+  pointer-events:none;
+
+  /* FLOATING (this is the key line) */
+  animation: ufoHover 4.5s ease-in-out infinite;
+
+  filter:
+    drop-shadow(0 0 12px rgba(90,255,140,.25))
+    drop-shadow(0 0 28px rgba(90,255,140,.15));
+}
+
+@keyframes ufoHover{
+  0%   { transform: translate(-50%, 0); }
+  50%  { transform: translate(-50%, -10px); }
+  100% { transform: translate(-50%, 0); }
+}
+
 }
 
 
